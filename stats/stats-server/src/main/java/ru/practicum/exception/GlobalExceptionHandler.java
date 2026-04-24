@@ -1,4 +1,4 @@
-package main.java.ru.practicum.exception;
+package ru.practicum.exception;
 
 import constant.Messages;
 

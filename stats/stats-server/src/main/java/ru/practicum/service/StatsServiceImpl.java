@@ -1,4 +1,4 @@
-package main.java.ru.practicum.service;
+package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -11,8 +11,8 @@ import constant.Messages;
 import dto.EndpointHitDto;
 import dto.ViewStats;
 
-import main.java.ru.practicum.mapper.StatsMapper;
-import main.java.ru.practicum.repository.StatsRepository;
+import ru.practicum.mapper.StatsMapper;
+import ru.practicum.repository.StatsRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;

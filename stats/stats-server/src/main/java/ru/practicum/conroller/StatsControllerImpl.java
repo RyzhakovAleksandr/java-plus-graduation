@@ -1,4 +1,4 @@
-package main.java.ru.practicum.conroller;
+package ru.practicum.conroller;
 
 import constant.Messages;
 
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import main.java.ru.practicum.service.StatsService;
+import ru.practicum.service.StatsService;
 
 import java.time.LocalDateTime;
 import java.util.List;
