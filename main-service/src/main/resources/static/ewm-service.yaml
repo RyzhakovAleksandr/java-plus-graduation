@@ -1,0 +1,1375 @@
+openapi: 3.0.0
+info:
+  title: Main Service API
+  description: Основной сервис
+  version: 0.0.1
+tags:
+  - name: ewm
+    description: Эндпоинты Main Service
+servers:
+  - url: http://localhost:8080
+    description: Main server
+
+paths:
+
+  #-----Compilation-----
+
+  /compilations:
+    get:
+      tags:
+        - Compilation
+      summary: Получение подборок событий
+      description: В случае, если по заданным фильтрам не найдено ни одной подборки, возвращает пустой список.
+      operationId: getCompilations
+      parameters:
+        - in: query
+          name: pinned
+          schema:
+            type: boolean
+          description: Искать только закрепленные/не закрепленные подборки
+        - in: query
+          name: from
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          description: Количество элементов, которые нужно пропустить для формирования текущего набора
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+            default: 10
+          description: Количество элементов в наборе
+      responses:
+        200:
+          description: Найдены подборки событий
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components.yaml#/components/schemas/CompilationDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /compilations/{compId}:
+    get:
+      tags:
+        - Compilation
+      summary: Получение подборок событий по его id
+      description: В случае, если подборки с заданным id не найдено, возвращает статус код 404.
+      operationId: getCompilation
+      parameters:
+        - in: path
+          name: compId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id подборки.
+      responses:
+        200:
+          description: Подборка событий найдена
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/CompilationDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        404:
+          description: Подборка не найдена или недоступна
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /admin/compilations:
+    post:
+      tags:
+        - Compilation
+      summary: Добавление новой подборки
+      description: Подборка может не содержать событий.
+      operationId: saveCompilation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/NewCompilationDto'
+      responses:
+        201:
+          description: Подборка добавлена
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/CompilationDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Нарушение целостности данных
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /admin/compilations/{compId}:
+    delete:
+      tags:
+        - Compilation
+      summary: Удаление подборки
+      description: Удаление подборки.
+      operationId: deleteCompilation
+      parameters:
+        - in: path
+          name: compId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id подборки.
+      responses:
+        204:
+          description: Подборка добавлена
+        404:
+          description: Подборка не найдена или недоступна
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+    patch:
+      tags:
+        - Compilation
+      summary: Обновить информацию о подборке
+      description: Обновить информацию о подборке.
+      operationId: updateCompilation
+      parameters:
+        - in: path
+          name: compId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id подборки.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/UpdateCompilationRequest'
+      responses:
+        200:
+          description: Подборка обновлена
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/CompilationDto'
+        404:
+          description: Подборка не найдена или недоступна
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  #-----Category-----
+
+  /admin/categories:
+    post:
+      tags:
+        - Category
+      summary: Добавление новой категории
+      description: Обратите внимание, имя категории должно быть уникальным.
+      operationId: addCategory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/NewCategoryDto'
+      responses:
+        201:
+          description: Категория добавлена
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/CategoryDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Нарушение целостности данных
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /admin/categories/{catId}:
+    delete:
+      tags:
+        - Category
+      summary: Удаление категории
+      description: Обратите внимание, с категорией не должно быть связано ни одного события.
+      operationId: deleteCategory
+      parameters:
+        - in: path
+          name: catId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id категории.
+      responses:
+        204:
+          description: Подборка добавлена
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Нарушение целостности данных
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+    patch:
+      tags:
+        - Category
+      summary: Изменение категории
+      description: Обратите внимание, имя категории должно быть уникальным.
+      operationId: updateCategory
+      parameters:
+        - in: path
+          name: catId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id категории.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/CategoryDto'
+      responses:
+        200:
+          description: Данные категории изменены
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/CategoryDto'
+        404:
+          description: Категория не найдена или недоступна
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Нарушение целостности данных
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /categories:
+    get:
+      tags:
+        - Category
+      summary: Получение категорий
+      description: В случае, если по заданным фильтрам не найдено ни одной категории, возвращает пустой список.
+      operationId: getCategories
+      parameters:
+        - in: query
+          name: from
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          description: Количество категорий, которые нужно пропустить для формирования текущего набора
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+            default: 10
+          description: Количество категорий в наборе
+      responses:
+        200:
+          description: Категории найдены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components.yaml#/components/schemas/CategoryDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /categories/{catId}:
+    get:
+      tags:
+        - Category
+      summary: Получение информации о категории по ее идентификатору
+      description: В случае, если категории с заданным id не найдено, возвращает статус код 404.
+      operationId: getCategory
+      parameters:
+        - in: path
+          name: catId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id категории
+      responses:
+        200:
+          description: Категория найдена
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/CategoryDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        404:
+          description: Категория не найдена или недоступна
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  #-----Event-----
+
+  /users/{userId}/events:
+    get:
+      tags:
+        - Event
+      summary: Получение событий, добавленных текущим пользователем
+      description: В случае, если по заданным фильтрам не найдено ни одного события, возвращает пустой список.
+      operationId: getEventsUser
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id текущего пользователя.
+        - in: query
+          name: from
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          description: Количество элементов, которые нужно пропустить для формирования текущего набора
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+            default: 10
+          description: Количество элементов в наборе
+      responses:
+        200:
+          description: Категория найдена
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components.yaml#/components/schemas/EventShortDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+    post:
+      tags:
+        - Event
+      summary: Добавление нового события
+      description: Обратите внимание, дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента.
+      operationId: addEvent
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id текущего пользователя.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/NewEventDto'
+      responses:
+        201:
+          description: Событие добавлено
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/EventFullDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Событие не удовлетворяет правилам создания
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /users/{userId}/events/{eventId}:
+    get:
+      tags:
+        - Event
+      summary: Получение полной информации о событии, добавленном текущим пользователем
+      description: В случае, если события с заданным id не найдено, возвращает статус код 404.
+      operationId: getEventUser
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id текущего пользователя.
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id события.
+      responses:
+        200:
+          description: Событие найдено
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/EventFullDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        404:
+          description: Событие не найдено или недоступно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Событие не удовлетворяет правилам создания
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+    patch:
+      tags:
+        - Event
+      summary: Изменение события, добавленного текущим пользователем
+      description: Изменить можно только отмененные события или события в состоянии ожидания модерации. Дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента
+      operationId: updateEvent
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id текущего пользователя.
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id редактируемого событи.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/UpdateEventUserRequest'
+      responses:
+        200:
+          description: Событие обновлено
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/EventFullDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        404:
+          description: Событие не найдено или недоступно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /users/{userId}/events/{eventId}/requests:
+    get:
+      tags:
+        - Event
+      summary: Получение информации о запросах на участие в событии текущего пользователя
+      description: В случае, если по заданным фильтрам не найдено ни одной заявки, возвращает пустой список.
+      operationId: getEventParticipants
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id текущего пользователя.
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id события.
+      responses:
+        200:
+          description: Найдены запросы на участие
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components.yaml#/components/schemas/ParticipationRequestDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+    patch:
+      tags:
+        - Event
+      summary: Изменение статуса заявок на участие в событии текущего пользователя.
+      description: Если для события лимит заявок равен 0 или отключена пре-модерация заявок, то подтверждение заявок не требуется. Нельзя подтвердить заявку, если уже достигнут лимит по заявкам на данное событие (Ожидается код ошибки 409). Статус можно изменить только у заявок, находящихся в состоянии ожидания (Ожидается код ошибки 409). Если при подтверждении данной заявки, лимит заявок для события исчерпан, то все неподтверждённые заявки необходимо отклонить.
+      operationId: changeRequestStatus
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id текущего пользователя.
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id события текущего пользователя.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/EventRequestStatusRequest'
+      responses:
+        200:
+          description: Статус заявок изменён
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/EventRequestStatusUpdateResult'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        404:
+          description: Событие не найдено или недоступно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Событие не удовлетворяет правилам создания
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /admin/events:
+    get:
+      tags:
+        - Event
+      summary: Поиск событий.
+      description: Эндпоинт возвращает полную информацию обо всех событиях подходящих под переданные условия. В случае, если по заданным фильтрам не найдено ни одного события, возвращает пустой список.
+      operationId: getEventsAdmin
+      parameters:
+        - in: query
+          name: users
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+          description: Список id пользователей, чьи события нужно найти
+        - in: query
+          name: states
+          schema:
+            type: array
+            items:
+              type: string
+          description: Список состояний в которых находятся искомые события
+        - in: query
+          name: categories
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+          description: Список id категорий в которых будет вестись поиск
+        - in: query
+          name: rangeStart
+          schema:
+            type: string
+          description: Дата и время не раньше которых должно произойти событие
+        - in: query
+          name: rangeEnd
+          schema:
+            type: string
+          description: Дата и время не позже которых должно произойти событие
+        - in: query
+          name: from
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          description: Количество событий, которые нужно пропустить для формирования текущего набора
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+            default: 10
+          description: Количество событий в наборе
+      responses:
+        200:
+          description: События найдены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components.yaml#/components/schemas/EventFullDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /admin/events/{eventId}:
+    patch:
+      tags:
+        - Event
+      summary: Редактирование данных события и его статуса.
+      description: Редактирование данных любого события администратором. Валидация данных не требуется.
+      operationId: updateEventAdmin
+      parameters:
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id события.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/UpdateEventAdminRequest'
+      responses:
+        200:
+          description: Событие отредактировано
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/EventFullDto'
+        404:
+          description: Событие не найдено или недоступно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Событие не удовлетворяет правилам создания
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /events:
+    get:
+      tags:
+        - Event
+      summary: Получение событий с возможностью фильтрации.
+      description: Это публичный эндпоинт, соответственно в выдаче должны быть только опубликованные события.
+      operationId: getEvents
+      parameters:
+        - in: query
+          name: text
+          schema:
+            type: string
+          example: "какой-то текст"
+          description: Текст для поиска в содержимом аннотации и подробном описании события.
+        - in: query
+          name: categories
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+          example: "[1, 3, 5]"
+          description: Список id категорий в которых будет вестись поиск.
+        - in: query
+          name: paid
+          schema:
+            type: boolean
+          example: "false"
+          description: Поиск только платных/бесплатных событий.
+        - in: query
+          name: rangeStart
+          schema:
+            type: string
+          example: "2022-09-06 11:00:23"
+          description: Дата и время не раньше которых должно произойти событие.
+        - in: query
+          name: rangeEnd
+          schema:
+            type: string
+          example: "2022-09-06 11:00:23"
+          description: Дата и время не позже которых должно произойти событие.
+        - in: query
+          name: onlyAvailable
+          schema:
+            type: boolean
+            default: false
+          example: "false"
+          description: Только события у которых не исчерпан лимит запросов на участие.
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ EVENT_DATE, VIEWS ]
+          example: "EVENT_DATE"
+          description: Вариант сортировки - по дате события или по количеству просмотров.
+        - in: query
+          name: from
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          example: "2"
+          description: Количество событий, которые нужно пропустить для формирования текущего набора.
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+            default: 10
+          example: "12"
+          description: Количество событий в наборе.
+      responses:
+        200:
+          description: События найдены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components.yaml#/components/schemas/EventShortDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /events/{id}:
+    get:
+      tags:
+        - Event
+      summary: Получение подробной информации об опубликованном событии по его идентификатору.
+      description: Получение подробной информации об опубликованном событии по его идентификатору.
+      operationId: getEvent
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id события.
+      responses:
+        200:
+          description: Событие найдено
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/EventFullDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        404:
+          description: Событие не найдено или недоступно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  #-----Request-----
+
+  /users/{userId}/requests:
+    get:
+      tags:
+        - Request
+      summary: Получение информации о заявках текущего пользователя на участие в событиях.
+      description: В случае, если по заданным фильтрам не найдено ни одной заявки, возвращает пустой список.
+      operationId: getUserRequests
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id текущего пользователя.
+      responses:
+        200:
+          description: Найдены запросы на участие
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components.yaml#/components/schemas/ParticipationRequestDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        404:
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+    post:
+      tags:
+        - Request
+      summary: Добавление запроса от текущего пользователя на участие в событии.
+      description: Добавление запроса от текущего пользователя на участие в событии.
+      operationId: addParticipationRequest
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id текущего пользователя.
+        - in: query
+          name: eventId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id события.
+      responses:
+        201:
+          description: Заявка создана
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ParticipationRequestDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        404:
+          description: Событие не найдено или недоступно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Нарушение целостности данных
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /users/{userId}/requests/{requestId}/cancel:
+    patch:
+      tags:
+        - Request
+      summary: Отмена своего запроса на участие в событии.
+      description: Отмена своего запроса на участие в событии.
+      operationId: cancelRequest
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id текущего пользователя.
+        - in: path
+          name: requestId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id запроса на участие.
+      responses:
+        200:
+          description: Заявка отменена
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ParticipationRequestDto'
+        404:
+          description: Запрос не найден или недоступен
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  #-----User-----
+
+  /admin/users:
+    get:
+      tags:
+        - User
+      summary: Получение информации о пользователях.
+      description: Возвращает информацию обо всех пользователях (учитываются параметры ограничения выборки), либо о конкретных (учитываются указанные идентификаторы). В случае, если по заданным фильтрам не найдено ни одного пользователя, возвращает пустой список.
+      operationId: getUsers
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+          example: "[1, 3, 5]"
+          description: id пользователей.
+        - in: query
+          name: from
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          example: "2"
+          description: Количество пользователей, которые нужно пропустить для формирования текущего набора.
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+            default: 10
+          example: "12"
+          description: Количество пользователей в наборе.
+      responses:
+        200:
+          description: Пользователи найдены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components.yaml#/components/schemas/UserDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+    post:
+      tags:
+        - User
+      summary: Добавление нового пользователя.
+      description: Добавление нового пользователя.
+      operationId: registerUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/NewUserRequest'
+      responses:
+        201:
+          description: Пользователь зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/UserDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Нарушение целостности данных
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /admin/users/{userId}:
+    delete:
+      tags:
+        - User
+      summary: Удаление пользователя.
+      description: Удаление пользователя.
+      operationId: deleteUser
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id пользователя.
+      responses:
+        204:
+          description: Пользователь удален
+        404:
+          description: Пользователь не найден или недоступен
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  #-----Comment-----
+
+  /user/{userId}/comments/{eventId}:
+    post:
+      tags:
+        - Comment
+      summary: Добавление комментария.
+      description: Добавление комментария пользователем.
+      operationId: addComment
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id пользователя.
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id события.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/NewCommentDto'
+      responses:
+        201:
+          description: Комментарий сохранен
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/CommentDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        404:
+          description: Пользователь или событие не найдено
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        409:
+          description: Нарушение целостности данных
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /user/{userId}/comments/{eventId}/{commentId}:
+    patch:
+      tags:
+        - Comment
+      summary: Обнавление комментария.
+      description: Обнавление комментария пользователем.
+      operationId: updateComment
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id пользователя.
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id события.
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id комментария.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'components.yaml#/components/schemas/NewCommentDto'
+      responses:
+        200:
+          description: Комментарий сохранен
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/CommentDto'
+        400:
+          description: Запрос составлен некорректно
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+        404:
+          description: Пользователь или событие не найдено
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /user/{userId}/comments:
+    get:
+      tags:
+        - Comment
+      summary: Получение комментария по автору.
+      description: Получение комментария по автору.
+      operationId: getCommentsByAuthor
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id пользователя.
+        - in: query
+          name: from
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          example: "2"
+          description: Количество комментариев, которые нужно пропустить для формирования текущего набора.
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+            default: 10
+          example: "12"
+          description: Количество комментариев в наборе.
+      responses:
+        200:
+          description: Комментарии найдены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components.yaml#/components/schemas/CommentDto'
+        404:
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /user/{userId}/comments/{commentId}:
+    delete:
+      tags:
+        - Comment
+      summary: Удаление комментария.
+      description: Удаление комментария пользователем.
+      operationId: deleteComment
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id пользователя.
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id комментария.
+      responses:
+        204:
+          description: Комментарий удален
+        404:
+          description: Комментарий не найден
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /admin/comments/{commentId}:
+    delete:
+      tags:
+        - Comment
+      summary: Удаление комментария.
+      description: Удаление комментария администратором.
+      operationId: deleteCommentByAdmin
+      parameters:
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id комментария.
+      responses:
+        204:
+          description: Комментарий удален
+        404:
+          description: Комментарий не найден
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /comments/event/{eventId}:
+    get:
+      tags:
+        - Comment
+      summary: Получение комментариев.
+      description: Получение комментариев события.
+      operationId: getComments
+      parameters:
+        - in: path
+          name: eventId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id события.
+        - in: query
+          name: from
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          example: "2"
+          description: Количество комментариев, которые нужно пропустить для формирования текущего набора.
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+            default: 10
+          example: "12"
+          description: Количество комментариев в наборе.
+      responses:
+        200:
+          description: Комментарии найдены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'components.yaml#/components/schemas/CommentDto'
+        404:
+          description: Событие не найдено
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
+
+  /comments/{commentId}:
+    get:
+      tags:
+        - Comment
+      summary: Получение комментария.
+      description: Получение комментария по id.
+      operationId: getCommentById
+      parameters:
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: id комментария.
+      responses:
+        200:
+          description: Комментарий найден
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/CommentDto'
+        404:
+          description: Комментарий не найден
+          content:
+            application/json:
+              schema:
+                $ref: 'components.yaml#/components/schemas/ApiError'
