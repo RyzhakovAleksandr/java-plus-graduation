@@ -15,9 +15,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/ewm-main
-    username: user
-    password: password
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
 
 logging:
   level:
@@ -25,3 +25,12 @@ logging:
     org.springframework.transaction: INFO
     org.springframework.transaction.interceptor: TRACE
     org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      enabled: true
