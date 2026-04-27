@@ -1,8 +1,4 @@
 services:
-  stats-server:
-    ports:
-      - "9090:9090"
-
   stats-db:
     image: postgres:16.1
     container_name: postgres-ewm-stats-db
@@ -18,10 +14,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 60s
-
-  ewm-service:
-    ports:
-      - "8080:8080"
 
   ewm-db:
     image: postgres:16.1
