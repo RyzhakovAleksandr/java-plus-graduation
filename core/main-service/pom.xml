@@ -141,7 +141,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>main.java.ru.practicum.Main</mainClass>
+                    <mainClass>ru.practicum.Main</mainClass>
                 </configuration>
             </plugin>
 
