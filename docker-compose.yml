@@ -1,32 +1,18 @@
 services:
   stats-db:
     image: postgres:16.1
-    container_name: postgres-ewm-stats-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: stats
     ports:
       - "6543:5432"
-    environment:
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_USER=user
-      - POSTGRES_DB=stats
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user -d stats" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
 
   ewm-db:
     image: postgres:16.1
-    container_name: postgres-ewm-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ewm-main
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_USER=user
-      - POSTGRES_DB=ewm-main
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user -d ewm-main" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
