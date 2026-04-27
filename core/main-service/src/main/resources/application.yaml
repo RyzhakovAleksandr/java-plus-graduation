@@ -6,12 +6,16 @@ spring:
   cloud:
     config:
       fail-fast: true
+      discovery:
+        enabled: true
+        service-id: config-server
+        retry:
+          max-attempts: 60
+          initial-interval: 2000
+          multiplier: 1.1
       retry:
         useRandomPolicy: true
         max-interval: 6000
-      discovery:
-        enabled: true
-        serviceId: config-server
   sql:
     init:
       mode: always
