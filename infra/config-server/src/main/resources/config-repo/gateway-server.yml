@@ -9,3 +9,14 @@ spring:
           uri: lb://main-service
           predicates:
             - Path=/api/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      enabled: true
+      show-details: always

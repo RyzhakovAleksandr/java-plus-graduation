@@ -18,3 +18,14 @@ server:
 logging:
   level:
     ru.practicum: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      enabled: true
+      show-details: always

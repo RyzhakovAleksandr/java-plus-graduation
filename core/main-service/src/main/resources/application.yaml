@@ -15,9 +15,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/ewm_main
-    username: ewm
-    password: ewm
+    url: jdbc:postgresql://localhost:5432/ewm-main
+    username: user
+    password: password
 
 logging:
   level:
