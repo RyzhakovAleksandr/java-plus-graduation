@@ -30,6 +30,7 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <jackson-databind-nullable.version>0.2.8</jackson-databind-nullable.version>
         <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
+        <spring-cloud.version>2023.0.3</spring-cloud.version>
 	</properties>
 
 	<build>
@@ -193,5 +194,17 @@
 			</build>
 		</profile>
 	</profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

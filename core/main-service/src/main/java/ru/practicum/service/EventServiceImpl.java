@@ -77,6 +77,8 @@ public class EventServiceImpl implements EventService {
 
     private final EventSpecification eventSpecification;
 
+    private final EwmClient ewmClient;
+
     @Override
     public ResponseEntity<EventFullDto> addEvent(Long userId, NewEventDto newEventDto) {
         log.info(Messages.MESSAGE_ADD_EVENT, userId, newEventDto);
@@ -161,7 +163,7 @@ public class EventServiceImpl implements EventService {
         LocationEntity location = locationRepository.findById(event.getLocation())
                 .orElseThrow(() -> new NotFoundException(Exceptions.EXCEPTION_NOT_FOUND));
 
-        EwmClient.sendEvent(Values.EVENT_GET_URI, id);
+        ewmClient.sendEvent(Values.EVENT_GET_URI, id);
 
         return ResponseEntity.ok(getEventFullDto(event, location));
     }
@@ -209,7 +211,7 @@ public class EventServiceImpl implements EventService {
                 .map(this::getEventShortDto)
                 .toList();
 
-        EwmClient.sendEvents(Values.EVENTS_GET_URI);
+        ewmClient.sendEvents(Values.EVENTS_GET_URI);
 
         return ResponseEntity.ok(list);
     }
