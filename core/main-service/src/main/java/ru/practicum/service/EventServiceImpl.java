@@ -1,5 +1,6 @@
 package ru.practicum.service;
 
+import dto.EndpointHitDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,7 +26,7 @@ import ru.practicum.persistence.repository.RequestRepository;
 import ru.practicum.persistence.repository.UserRepository;
 import ru.practicum.persistence.status.StatusRequest;
 import ru.practicum.specification.EventSpecification;
-import ru.practicum.util.EwmClient;
+import ru.practicum.util.StatsClient;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -76,6 +77,8 @@ public class EventServiceImpl implements EventService {
     private final LocationMapper locationMapper;
 
     private final EventSpecification eventSpecification;
+
+    private final StatsClient statsClient;
 
     @Override
     public ResponseEntity<EventFullDto> addEvent(Long userId, NewEventDto newEventDto) {
@@ -161,7 +164,12 @@ public class EventServiceImpl implements EventService {
         LocationEntity location = locationRepository.findById(event.getLocation())
                 .orElseThrow(() -> new NotFoundException(Exceptions.EXCEPTION_NOT_FOUND));
 
-        EwmClient.sendEvent(Values.EVENT_GET_URI, id);
+        statsClient.saveHit(EndpointHitDto.builder()
+                .uri(Values.EVENT_GET_URI + id)
+                .app(Values.APPLICATION)
+                .ip(Values.EWM_IP)
+                .timestamp(LocalDateTime.now())
+                .build());
 
         return ResponseEntity.ok(getEventFullDto(event, location));
     }
@@ -209,7 +217,12 @@ public class EventServiceImpl implements EventService {
                 .map(this::getEventShortDto)
                 .toList();
 
-        EwmClient.sendEvents(Values.EVENTS_GET_URI);
+        statsClient.saveHit(EndpointHitDto.builder()
+                .uri(Values.EVENTS_GET_URI)
+                .app(Values.APPLICATION)
+                .ip(Values.EWM_IP)
+                .timestamp(LocalDateTime.now())
+                .build());
 
         return ResponseEntity.ok(list);
     }
