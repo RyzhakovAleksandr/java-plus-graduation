@@ -1,0 +1,11 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: main-service
+          uri: lb://main-service
+          predicates:
+            - Path=/api/**
