@@ -31,6 +31,7 @@ import ru.practicum.openapi.model.UserShortDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.practicum.openapi.model.EventFullDto.StateEnum.PUBLISHED;
@@ -106,19 +107,35 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CommentDto> getCommentsByAuthor(Long userId, Integer from, Integer size) {
         log.info(Messages.MESSAGE_GET_COMMENTS_BY_AUTHOR, userId);
 
         checkAndGetUser(userId);
-        List<Request> requests = requestRepository.findAll();
+        List<Comment> comments = commentRepository.findAllByAuthorId(
+                userId,
+                PageRequest.of(from / size, size)
+        );
 
-        return commentRepository.findAllByAuthorId(userId, PageRequest.of(from / size, size))
-                .stream()
+        if (comments.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> eventIds = comments.stream()
+                .map(comment -> comment.getEvent().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Long, Long> confirmedRequestsCountMap = requestRepository
+                .getConfirmedRequestsCountMap(eventIds, StatusRequest.CONFIRMED.toString());
+
+        return comments.stream()
                 .map(comment -> {
+                    Long eventId = comment.getEvent().getId();
+
+                    Long confirmedRequests = confirmedRequestsCountMap.getOrDefault(eventId, 0L);
+
                     UserShortDto userShort = userMapper.userToUserShortDto(comment.getAuthor());
-                    Long confirmedRequests = requests.stream()
-                            .filter(r -> r.getEvent().equals(comment.getEvent().getId())
-                                    && r.getStatus().equals(StatusRequest.CONFIRMED.toString())).count();
                     EventShortDto eventShort = createEventShortDtoWithConfirmedRequests(
                             comment.getEvent(), confirmedRequests);
 

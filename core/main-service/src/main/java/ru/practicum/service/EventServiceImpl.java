@@ -165,7 +165,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException(Exceptions.EXCEPTION_NOT_FOUND));
 
         statsClient.saveHit(EndpointHitDto.builder()
-                .uri(Values.EVENT_GET_URI + id)
+                .uri(String.format(Values.EVENT_GET_URI, id))
                 .app(Values.APPLICATION)
                 .ip(Values.EWM_IP)
                 .timestamp(LocalDateTime.now())
