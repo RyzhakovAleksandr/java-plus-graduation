@@ -1,12 +1,12 @@
 package ru.practicum.mapper;
 
-import ru.practicum.persistence.entity.User;
+import ru.practicum.model.User;
 
 import org.mapstruct.Mapper;
 
-import ru.practicum.openapi.model.NewUserRequest;
-import ru.practicum.openapi.model.UserDto;
-import ru.practicum.openapi.model.UserShortDto;
+import ru.practicum.dto.NewUserRequest;
+import ru.practicum.dto.UserDto;
+import ru.practicum.dto.UserShortDto;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

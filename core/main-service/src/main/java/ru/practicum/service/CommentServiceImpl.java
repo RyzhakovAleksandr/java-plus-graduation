@@ -12,7 +12,6 @@ import ru.practicum.mapper.EventMapper;
 import ru.practicum.mapper.UserMapper;
 import ru.practicum.persistence.entity.Comment;
 import ru.practicum.persistence.entity.Event;
-import ru.practicum.persistence.entity.Request;
 import ru.practicum.persistence.entity.User;
 import ru.practicum.persistence.repository.CommentRepository;
 import ru.practicum.persistence.repository.EventRepository;

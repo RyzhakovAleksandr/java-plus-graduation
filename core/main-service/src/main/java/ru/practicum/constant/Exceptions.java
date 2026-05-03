@@ -22,7 +22,7 @@ public class Exceptions {
     public static final String EXCEPTION_NOT_ILLEGAL_ARGUMENT = "Используется не допустимое значение";
     public static final String EXCEPTION_CONFLICT_CATEGORY = "Категория с именем %s уже существует";
     public static final String EXCEPTION_CANT_DELETE_CATEGORY = "Невозможно удалить категорию, так как с ней связаны события";
-    public static final String EXCEPTION_CONFLICT_EMAIL = "Пользователь с email %s уже существует";
+
     public static final String EXCEPTION_CANT_UPDATE_PUBLISHED = "Нельзя изменить опубликованное событие";
     public static final String EXCEPTION_ONLY_INITIATOR = "Только инициатор события может просматривать заявки на участие";
     public static final String EXCEPTION_DATA_INTEGRITY_VIOLATION = "Нарушена целостность данных";

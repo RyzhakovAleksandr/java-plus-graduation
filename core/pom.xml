@@ -20,7 +20,8 @@
     </properties>
 
     <modules>
-        <module>main-service</module>
+        <module>core-api</module>
+        <module>user-service</module>
     </modules>
 
 </project>

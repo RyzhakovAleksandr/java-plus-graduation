@@ -1,5 +1,6 @@
-package ru.practicum.persistence.entity;
+package ru.practicum.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,18 +15,20 @@ import lombok.experimental.FieldDefaults;
 import lombok.Getter;
 
 @Entity
+@Table(name = "users")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @Column(nullable = false, length = 254)
     String name;
 
+    @Column(nullable = false, unique = true, length = 254)
     String email;
 }

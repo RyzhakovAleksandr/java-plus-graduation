@@ -1,6 +1,6 @@
-package ru.practicum.persistence.repository;
+package ru.practicum.repository;
 
-import ru.practicum.persistence.entity.User;
+import ru.practicum.model.User;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
