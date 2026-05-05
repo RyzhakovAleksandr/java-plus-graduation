@@ -2,43 +2,45 @@ package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
 
-import ru.practicum.constant.Exceptions;
-import ru.practicum.constant.Messages;
+import lombok.extern.slf4j.Slf4j;
+import ru.practicum.constant.Message;
 import ru.practicum.exception.ForbiddenException;
+import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.CategoryMapper;
-import ru.practicum.persistence.entity.Category;
-import ru.practicum.persistence.repository.CategoryRepository;
+import ru.practicum.model.Category;
+import ru.practicum.repository.CategoryRepository;
 
-import ru.practicum.persistence.repository.EventRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.openapi.model.CategoryDto;
-import ru.practicum.openapi.model.NewCategoryDto;
+import ru.practicum.dto.CategoryDto;
+import ru.practicum.dto.NewCategoryDto;
 
-import ru.practicum.exception.NotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
-    private final EventRepository eventRepository;
     private final CategoryMapper categoryMapper;
 
     @Override
     @Transactional
     public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
         validateCategoryName(newCategoryDto.getName());
+        validateCategoryNotExists(newCategoryDto.getName());
 
-        if (categoryRepository.existsByName(newCategoryDto.getName())) {
-            throw new ForbiddenException(String.format(Exceptions.EXCEPTION_CONFLICT_CATEGORY, newCategoryDto.getName()));
-        }
-        return categoryMapper.toCategoryDto(categoryRepository.save(categoryMapper.toCategory(newCategoryDto)));
+        Category category = categoryMapper.toCategory(newCategoryDto);
+        category = categoryRepository.save(category);
+
+        log.info(Message.LOG_ADDED_CATEGORY, category.getId(), category.getName());
+
+        return categoryMapper.toCategoryDto(category);
     }
 
     @Override
@@ -46,22 +48,26 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto updateCategory(Long categoryId, CategoryDto categoryDto) {
         Category category = getCategory(categoryId);
         validateCategoryName(categoryDto.getName());
+
         if (!category.getName().equals(categoryDto.getName())) {
-            boolean nameExists = categoryRepository.existsByNameAndIdNot(categoryDto.getName(), categoryId);
-            if (nameExists) {
-                throw new ForbiddenException(String.format(Exceptions.EXCEPTION_CONFLICT_CATEGORY, categoryDto.getName()));
-            }
+            validateCategoryNotExists(categoryDto.getName());
         }
 
         category.setName(categoryDto.getName());
-        return categoryMapper.toCategoryDto(categoryRepository.save(category));
+        category = categoryRepository.save(category);
+
+        log.info(Message.LOG_UPDATE_CATEGORY, category.getId(), category.getName());
+
+        return categoryMapper.toCategoryDto(category);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<CategoryDto> getCategories(Integer from, Integer size) {
-        return categoryRepository.findAll(PageRequest.of(from / size, size)).stream()
-                .map(categoryMapper::toCategoryDto).collect(Collectors.toList());
+        return categoryRepository.findAll(PageRequest.of(from / size, size))
+                .stream()
+                .map(categoryMapper::toCategoryDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -73,20 +79,15 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(Long categoryId) {
-        if (!categoryRepository.existsById(categoryId)) {
-            throw new NotFoundException(String.format(Messages.MESSAGE_CATEGORY_NOT_FOUND, categoryId));
-        }
+        Category category = getCategory(categoryId);
 
-        if (eventRepository.existsByCategoryId(categoryId)) {
-            throw new ForbiddenException(Exceptions.EXCEPTION_CANT_DELETE_CATEGORY);
-        }
-
-        categoryRepository.deleteById(categoryId);
+        categoryRepository.delete(category);
+        log.info(Message.LOG_DELETED_CATEGORY, categoryId);
     }
 
     private Category getCategory(Long categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(() ->
-                new NotFoundException(String.format(Messages.MESSAGE_CATEGORY_NOT_FOUND, categoryId)));
+                new NotFoundException(String.format(Message.MESSAGE_CATEGORY_NOT_FOUND, categoryId)));
     }
 
     private void validateCategoryName(String name) {
@@ -102,6 +103,12 @@ public class CategoryServiceImpl implements CategoryService {
         }
         if (trimmed.length() > 50) {
             throw new ValidationException("Имя категории не может превышать 50 символов");
+        }
+    }
+
+    private void validateCategoryNotExists(String name) {
+        if (categoryRepository.existsByName(name)) {
+            throw new ForbiddenException("Категория с именем '" + name + "' уже существует");
         }
     }
 }

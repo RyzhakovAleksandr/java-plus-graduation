@@ -10,10 +10,10 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/admin/users/**, /users/**
-        - id: main_service_route
-          uri: lb://main-service
+        - id: category-service-route
+          uri: lb://category-service
           predicates:
-            - Path=/**
+            - Path=/categories/**, /admin/categories/**
 
 management:
   endpoints:
