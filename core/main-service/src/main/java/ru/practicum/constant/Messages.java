@@ -19,19 +19,16 @@ public class Messages {
     public static final String MESSAGE_DELETE_USER = "DELETE /admin.users/{}";
     public static final String MESSAGE_GET_USERS = "GET /admin/users?ids={}&from={}&size={}";
     public static final String MESSAGE_REGISTER_USER = "POST /admin/users with request: {}";
-    public static final String MESSAGE_ADD_EVENT = "POST /users/{}/events users with request: {}";
+
     public static final String MESSAGE_DATE_MISMATCH = "Дата не соответствует требованиям";
     public static final String MESSAGE_CHANGE_STATUS = "Поступил запрос на изменения статуса";
     public static final String MESSAGE_LIMIT_EXCEEDED = "Лимит запросов превышен";
     public static final String MESSAGE_NOT_RESPOND_STATUS = "Статус запросов должен быть PENDING";
-    public static final String MESSAGE_GET_EVENT_BY_ID = "Поступил запрос на получение события по id: {}";
-    public static final String MESSAGE_GET_PARTICIPANTS =
-            "Поступил запрос на получение информации о запросах от пользователя: {} для события: {}";
-    public static final String MESSAGE_GET_EVENTS_BY_USER_ID_AND_EVENT_ID =
-            "Поступил запрос на получение информации о событиии: {} от пользователя: {}";
-    public static final String MESSAGE_GET_EVENTS = "Поступил запрос на получение события";
-    public static final String MESSAGE_GET_EVENTS_FOR_ADMIN = "Поступил запрос на получение события администратором";
-    public static final String MESSAGE_GET_EVENTS_FOR_USER = "Поступил запрос на получение события пользователем";
+
+
+
+
+
     public static final String MESSAGE_UPDATE_EVENT = "Поступил запрос на обновление события";
     public static final String MESSAGE_ADDED_REQUEST = "Заявка создана успешно. ID заявки: {}, статус: {}";
     public static final String MESSAGE_CANCEL_REQUEST = "Заявка {} успешно отменена пользователем {}";
