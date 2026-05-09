@@ -1,6 +1,6 @@
-package ru.practicum.persistence.repository;
+package ru.practicum.repository;
 
-import ru.practicum.persistence.entity.Request;
+import ru.practicum.model.Request;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -64,10 +64,10 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Request> findAllByEventId(@Param("eventId") Long eventId);
 
     @Query("""
-            SELECT r.event, COUNT(r) 
-            FROM Request r 
-            WHERE r.event IN :eventIds 
-            AND r.status = :status 
+            SELECT r.event, COUNT(r)
+            FROM Request r
+            WHERE r.event IN :eventIds
+            AND r.status = :status
             GROUP BY r.event
             """)
     List<Object[]> countConfirmedRequestsByEventIdsGrouped(

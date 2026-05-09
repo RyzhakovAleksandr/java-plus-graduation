@@ -1,5 +1,6 @@
-package ru.practicum.persistence.entity;
+package ru.practicum.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,11 +30,15 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @Column(nullable = false)
     OffsetDateTime created;
 
+    @Column(nullable = false)
     Long event;
 
+    @Column(nullable = false)
     Long requester;
 
+    @Column(nullable = false, length = 20)
     String status;
 }

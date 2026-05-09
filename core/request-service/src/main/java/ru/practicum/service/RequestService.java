@@ -1,8 +1,8 @@
 package ru.practicum.service;
 
-import ru.practicum.openapi.model.EventRequestStatusRequest;
-import ru.practicum.openapi.model.EventRequestStatusUpdateResult;
-import ru.practicum.openapi.model.ParticipationRequestDto;
+import ru.practicum.dto.EventRequestStatusRequest;
+import ru.practicum.dto.EventRequestStatusUpdateResult;
+import ru.practicum.dto.ParticipationRequestDto;
 
 import java.util.List;
 
@@ -15,6 +15,4 @@ public interface RequestService {
     ParticipationRequestDto cancelRequest(Long userId, Long requestId);
 
     List<ParticipationRequestDto> getRequestsByUser(Long userId);
-
-
 }

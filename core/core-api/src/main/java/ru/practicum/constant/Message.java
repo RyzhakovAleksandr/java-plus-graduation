@@ -12,6 +12,7 @@ public class Message {
     public static final String GET_CATEGORIES_SERVICE_NOT_AVAILABLE = "category-service недоступен. Возвращаем пустой список категорий";
     public static final String GET_REQUEST_SERVICE_NOT_AVAILABLE = "request-service недоступен. Возвращаем пустой список заявок пользователя {}";
     public static final String GET_REQUEST_EVENTS_SERVICE_NOT_AVAILABLE = "request-service недоступен. Возвращаем пустой список участников события {}";
+    public static final String GET_EVENT_SERVICE_NOT_AVAILABLE = "event-service недоступен. Возвращаем null для события {}";
     //log.error
     public static final String REGISTER_USER_SERVICE_NOT_AVAILABLE = "user-service недоступен. Регистрация невозможна. Причина: {}";
     public static final String DELETE_USER_SERVICE_NOT_AVAILABLE = "user-service недоступен. Удаление пользователя {} невозможно";

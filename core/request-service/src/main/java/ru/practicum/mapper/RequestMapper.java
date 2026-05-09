@@ -1,13 +1,13 @@
 package ru.practicum.mapper;
 
 import ru.practicum.constant.Values;
-import ru.practicum.persistence.entity.Request;
+import ru.practicum.model.Request;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import org.mapstruct.Named;
-import ru.practicum.openapi.model.ParticipationRequestDto;
+import ru.practicum.dto.ParticipationRequestDto;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;

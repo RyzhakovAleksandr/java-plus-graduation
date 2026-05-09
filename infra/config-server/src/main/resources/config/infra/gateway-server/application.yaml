@@ -18,6 +18,10 @@ spring:
           uri: lb://event-service
           predicates:
             - Path=/users/*/events/**, /admin/events/**, /events/**
+        - id: request-service-route
+          uri: lb://request-service
+          predicates:
+            - Path=/users/*/requests/**, /users/*/events/*/requests/**
 
 management:
   endpoints:

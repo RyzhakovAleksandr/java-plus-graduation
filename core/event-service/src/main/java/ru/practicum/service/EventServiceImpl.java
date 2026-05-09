@@ -113,8 +113,7 @@ public class EventServiceImpl implements EventService {
             Long userId, Long eventId, EventRequestStatusRequest eventRequestStatusRequest) {
         log.info(Message.MESSAGE_CHANGE_STATUS);
 
-        // TODO: будет реализовано после выделения request-service
-        log.warn("Request-service пока не реализован. Возвращаем заглушку.");
+        EventRequestStatusUpdateResult result = requestClient.changeRequestStatus(userId, eventId, eventRequestStatusRequest);
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
@@ -156,8 +155,7 @@ public class EventServiceImpl implements EventService {
     public ResponseEntity<List<ParticipationRequestDto>> getEventParticipants(Long userId, Long eventId) {
         log.info(Message.MESSAGE_GET_PARTICIPANTS, userId, eventId);
 
-        // TODO: будет реализовано после выделения request-service
-        log.warn("Request-service пока не реализован. Возвращаем пустой список.");
+        List<ParticipationRequestDto> result = requestClient.getEventParticipants(userId, eventId);
         return ResponseEntity.ok(List.of());
     }
 
