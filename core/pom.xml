@@ -25,6 +25,7 @@
         <module>category-service</module>
         <module>event-service</module>
         <module>request-service</module>
+        <module>compilation-service</module>
     </modules>
 
 </project>

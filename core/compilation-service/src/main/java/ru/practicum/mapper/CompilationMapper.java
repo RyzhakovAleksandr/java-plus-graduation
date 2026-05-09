@@ -1,6 +1,6 @@
 package ru.practicum.mapper;
 
-import ru.practicum.persistence.entity.Compilation;
+import ru.practicum.model.Compilation;
 
 import org.mapstruct.Mapper;
 
@@ -8,9 +8,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import ru.practicum.openapi.model.CompilationDto;
-import ru.practicum.openapi.model.NewCompilationDto;
-import ru.practicum.openapi.model.UpdateCompilationRequest;
+import ru.practicum.dto.CompilationDto;
+import ru.practicum.dto.NewCompilationDto;
+import ru.practicum.dto.UpdateCompilationRequest;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CompilationMapper {

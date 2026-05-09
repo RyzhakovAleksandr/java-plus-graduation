@@ -1,6 +1,6 @@
-package ru.practicum.persistence.repository;
+package ru.practicum.repository;
 
-import ru.practicum.persistence.entity.Compilation;
+import ru.practicum.model.Compilation;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

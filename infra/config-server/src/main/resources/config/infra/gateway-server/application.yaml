@@ -22,6 +22,10 @@ spring:
           uri: lb://request-service
           predicates:
             - Path=/users/*/requests/**, /users/*/events/*/requests/**
+        - id: compilation-service-route
+          uri: lb://compilation-service
+          predicates:
+            - Path=/compilations/**, /admin/compilations/**
 
 management:
   endpoints:
