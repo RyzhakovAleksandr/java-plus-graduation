@@ -1,45 +1,43 @@
 package ru.practicum.model;
 
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Set;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "compilations")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Compilation {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    Boolean pinned;
+    @Column(nullable = false, length = 3000)
+    String text;
 
-    String title;
+    @Column(name = "author_id", nullable = false)
+    Long authorId;
 
-    @ElementCollection
-    @CollectionTable(name = "compilation_to_events",
-    joinColumns = @JoinColumn(name = "compilation_id"))
-    @Column(name = "event_id")
-    Set<Long> events;
+    @Column(name = "event_id", nullable = false)
+    Long eventId;
+
+    @Column(name = "created", nullable = false)
+    LocalDateTime created;
+
+    @Column(name = "edited")
+    LocalDateTime edited;
 }

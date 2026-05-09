@@ -1,0 +1,5 @@
+package ru.practicum.constant;
+
+public class Values {
+    public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+}

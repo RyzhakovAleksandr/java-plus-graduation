@@ -1,10 +1,10 @@
 package ru.practicum.mapper;
 
+import org.mapstruct.Mapping;
 import ru.practicum.model.Compilation;
 
 import org.mapstruct.Mapper;
 
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
@@ -17,10 +17,8 @@ public interface CompilationMapper {
     @Mapping(target = "events", ignore = true)
     CompilationDto compilationToCompilationDto(Compilation compilation);
 
-    @Mapping(target = "events", ignore = true)
     Compilation newCompilationDtoToCompilation(NewCompilationDto newCompilationDto);
 
-    @Mapping(target = "events", ignore = true)
     void updateCompilationRequestToCompilation(@MappingTarget Compilation compilation,
                                                UpdateCompilationRequest updateCompilationRequest);
 }

@@ -16,4 +16,7 @@ public interface EventClient {
 
     @GetMapping("/events")
     List<EventShortDto> getEventsByIds(@RequestParam("ids") List<Long> ids);
+
+    @GetMapping("/events/{id}/short")
+    EventShortDto getEventShort(@PathVariable("id") Long id);
 }

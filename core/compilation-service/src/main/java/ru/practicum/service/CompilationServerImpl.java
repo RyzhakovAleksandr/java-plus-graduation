@@ -74,7 +74,7 @@ public class CompilationServerImpl implements CompilationServer {
         compilation.setPinned(newCompilationDto.getPinned() != null ? newCompilationDto.getPinned() : false);
 
         if (newCompilationDto.getEvents() != null && !newCompilationDto.getEvents().isEmpty()) {
-            compilation.setEventIds(new HashSet<>(newCompilationDto.getEvents()));
+            compilation.setEvents(new HashSet<>(newCompilationDto.getEvents()));
         }
 
         compilation = compilationRepository.save(compilation);
@@ -92,7 +92,7 @@ public class CompilationServerImpl implements CompilationServer {
         compilationMapper.updateCompilationRequestToCompilation(compilation, updateRequest);
 
         if (updateRequest.getEvents() != null) {
-            compilation.setEventIds(new HashSet<>(updateRequest.getEvents()));
+            compilation.setEvents(new HashSet<>(updateRequest.getEvents()));
         }
 
         compilation = compilationRepository.save(compilation);
@@ -114,8 +114,8 @@ public class CompilationServerImpl implements CompilationServer {
     private CompilationDto toCompilationDto(Compilation compilation) {
         CompilationDto dto = compilationMapper.compilationToCompilationDto(compilation);
 
-        if (compilation.getEventIds() != null && !compilation.getEventIds().isEmpty()) {
-            List<Long> eventIds = new ArrayList<>(compilation.getEventIds());
+        if (compilation.getEvents() != null && !compilation.getEvents().isEmpty()) {
+            List<Long> eventIds = new ArrayList<>(compilation.getEvents());
             List<EventShortDto> events = eventClient.getEventsByIds(eventIds);
 
             List<EventShortDto> enrichedEvents = enrichEventsWithCategoriesAndUsers(events);
