@@ -14,9 +14,15 @@ public interface EventClient {
     @GetMapping("/events/{id}")
     EventFullDto getEvent(@PathVariable("id") Long id);
 
-    @GetMapping("/events")
+    @GetMapping("/events/by-ids")
     List<EventShortDto> getEventsByIds(@RequestParam("ids") List<Long> ids);
 
     @GetMapping("/events/{id}/short")
     EventShortDto getEventShort(@PathVariable("id") Long id);
+
+    @GetMapping("/events/by-category/{categoryId}/exists")
+    boolean hasEventsByCategory(@PathVariable("categoryId") Long categoryId);
+
+    @GetMapping("/admin/events/{id}")
+    EventFullDto getEventInternal(@PathVariable("id") Long id);
 }

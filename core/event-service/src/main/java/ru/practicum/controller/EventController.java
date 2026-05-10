@@ -24,6 +24,11 @@ import ru.practicum.dto.NewEventDto;
 import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.dto.UpdateEventAdminRequest;
 import ru.practicum.dto.UpdateEventUserRequest;
+import ru.practicum.exception.NotFoundException;
+import ru.practicum.model.Event;
+import ru.practicum.model.LocationEntity;
+import ru.practicum.repository.EventRepository;
+import ru.practicum.repository.LocationRepository;
 import ru.practicum.service.EventService;
 
 import java.util.List;
@@ -33,6 +38,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
+
+    private final EventRepository eventRepository;
+    private final LocationRepository locationRepository;
 
     @PostMapping("/users/{userId}/events")
     public ResponseEntity<EventFullDto> addEvent(
@@ -132,7 +140,7 @@ public class EventController {
     public ResponseEntity<EventFullDto> updateEvent(
             @PathVariable Long userId,
             @PathVariable Long eventId,
-            @Valid@RequestBody UpdateEventUserRequest updateEventUserRequest) {
+            @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
         log.info(Message.LOG_UPDATE_EVENT, userId, eventId);
         return eventService.updateEvent(userId, eventId, updateEventUserRequest);
     }
@@ -143,5 +151,24 @@ public class EventController {
             @Valid@RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
         log.info(Message.LOG_UPDATE_EVENT_ADMIN, eventId);
         return eventService.updateEventAdmin(eventId, updateEventAdminRequest);
+    }
+
+    @GetMapping("/events/by-ids")
+    public ResponseEntity<List<EventShortDto>> getEventsByIds(@RequestParam List<Long> ids) {
+        log.info("GET /events/by-ids?ids={}", ids);
+        List<EventShortDto> events = eventService.getEventsByIds(ids);
+        return ResponseEntity.ok(events);
+    }
+
+    @GetMapping("/events/by-category/{categoryId}/exists")
+    public ResponseEntity<Boolean> hasEventsByCategory(@PathVariable Long categoryId) {
+        boolean exists = eventRepository.existsByCategoryId(categoryId);
+        return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/admin/events/{id}")
+    public ResponseEntity<EventFullDto> getEventInternal(@PathVariable Long id) {
+        log.info("GET /admin/events/{} (internal)", id);
+        return ResponseEntity.ok(eventService.getEventInternal(id));
     }
 }

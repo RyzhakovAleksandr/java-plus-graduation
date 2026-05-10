@@ -22,5 +22,5 @@ CREATE TABLE IF NOT EXISTS events (
     confirmed_requests INT,
     title TEXT NOT NULL,
     state VARCHAR(10),
-    views BIGINT DEFAULT 0,
+    views BIGINT DEFAULT 0
 );

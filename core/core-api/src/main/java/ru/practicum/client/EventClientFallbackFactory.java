@@ -31,6 +31,18 @@ public class EventClientFallbackFactory implements FallbackFactory<EventClient> 
                 log.warn(Message.GET_SHORT_EVENT_SERVICE_NOT_AVAILABLE, id);
                 return null;
             }
+
+            @Override
+            public boolean hasEventsByCategory(Long categoryId) {
+                log.warn("event-service недоступен, предполагаем что событий нет");
+                return false;
+            }
+
+            @Override
+            public EventFullDto getEventInternal(Long id) {
+                log.warn("event-service недоступен для internal запроса события {}", id);
+                return null;
+            }
         };
     }
 }

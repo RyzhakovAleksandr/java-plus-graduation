@@ -112,13 +112,16 @@ public class CompilationServerImpl implements CompilationServer {
     }
 
     private CompilationDto toCompilationDto(Compilation compilation) {
+        log.info("Compilation eventIds: {}", compilation.getEvents());
         CompilationDto dto = compilationMapper.compilationToCompilationDto(compilation);
 
         if (compilation.getEvents() != null && !compilation.getEvents().isEmpty()) {
             List<Long> eventIds = new ArrayList<>(compilation.getEvents());
+            log.info("Fetching events by ids: {}", eventIds);
             List<EventShortDto> events = eventClient.getEventsByIds(eventIds);
 
             List<EventShortDto> enrichedEvents = enrichEventsWithCategoriesAndUsers(events);
+            log.info("Received events count: {}", events.size());
             dto.setEvents(enrichedEvents);
         } else {
             dto.setEvents(List.of());

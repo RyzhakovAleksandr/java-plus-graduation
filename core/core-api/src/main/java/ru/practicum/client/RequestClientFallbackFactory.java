@@ -46,6 +46,12 @@ public class RequestClientFallbackFactory implements FallbackFactory<RequestClie
                 log.error(Message.CHANGE_REQUEST_SERVICE_NOT_AVAILABLE, eventId);
                 throw new RuntimeException(Message.REQUEST_SERVICE_NOT_AVAILABLE);
             }
+
+            @Override
+            public Long getConfirmedRequestsCount(Long eventId) {
+                log.warn(Message.GET_CONFIRMED_REQUESTS_COUNT_SERVICE_NOT_AVAILABLE, eventId);
+                return 0L;  // fallback — возвращаем 0
+            }
         };
     }
 }

@@ -3,6 +3,7 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.practicum.client.EventClient;
 import ru.practicum.constant.Message;
 import ru.practicum.exception.ForbiddenException;
 import ru.practicum.exception.NotFoundException;
@@ -28,6 +29,8 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+
+    private final EventClient eventClient;
 
     @Override
     @Transactional
@@ -81,6 +84,10 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(Long categoryId) {
         Category category = getCategory(categoryId);
 
+        boolean hasEvents = eventClient.hasEventsByCategory(categoryId);
+        if (hasEvents) {
+            throw new ForbiddenException("Нельзя удалить категорию, так как с ней связаны события");
+        }
         categoryRepository.delete(category);
         log.info(Message.LOG_DELETED_CATEGORY, categoryId);
     }

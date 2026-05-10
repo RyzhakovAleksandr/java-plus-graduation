@@ -9,11 +9,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ru.practicum.constant.Message;
+import ru.practicum.dto.EventRequestStatusRequest;
+import ru.practicum.dto.EventRequestStatusUpdateResult;
 import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.service.RequestService;
+import ru.practicum.status.StatusRequest;
 
 import java.util.List;
 
@@ -26,7 +31,7 @@ public class RequestController {
     @PostMapping("/users/{userId}/requests")
     public ResponseEntity<ParticipationRequestDto> addParticipationRequest(
             @PathVariable Long userId,
-            @PathVariable Long eventId) {
+            @RequestParam Long eventId) {
         log.info(Message.ADD_REQUEST, userId, eventId);
 
         ParticipationRequestDto participationRequestDto = requestService.addRequest(userId, eventId);
@@ -49,5 +54,31 @@ public class RequestController {
 
         List<ParticipationRequestDto> requests = requestService.getRequestsByUser(userId);
         return ResponseEntity.ok(requests);
+    }
+
+    @GetMapping("/users/{userId}/events/{eventId}/requests")
+    public ResponseEntity<List<ParticipationRequestDto>> getEventParticipants(
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
+        log.info(Message.GET_REQUEST, userId, eventId);
+        List<ParticipationRequestDto> result = requestService.getEventParticipants(userId, eventId);
+        return ResponseEntity.ok(result);
+    }
+
+    @PatchMapping("/users/{userId}/events/{eventId}/requests")
+    public ResponseEntity<EventRequestStatusUpdateResult> updateRequestStatus(
+            @PathVariable Long userId,
+            @PathVariable Long eventId,
+            @RequestBody EventRequestStatusRequest request) {
+        log.info(Message.UPDATE_REQUEST, userId, eventId);
+        EventRequestStatusUpdateResult result = requestService.updateRequestStatus(userId, eventId, request);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/events/{eventId}/confirmed-count")
+    public ResponseEntity<Long> getConfirmedRequestsCount(@PathVariable Long eventId) {
+        log.info("GET /events/{}/confirmed-count", eventId);
+        Long count = requestService.getConfirmedRequestsCount(eventId);
+        return ResponseEntity.ok(count);
     }
 }

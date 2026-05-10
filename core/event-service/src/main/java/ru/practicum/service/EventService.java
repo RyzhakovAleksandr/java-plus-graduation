@@ -38,4 +38,9 @@ public interface EventService {
     ResponseEntity<EventFullDto> updateEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
 
     ResponseEntity<EventFullDto> updateEventAdmin(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
+
+    List<EventShortDto> getEventsByIds(List<Long> ids);
+
+    EventFullDto getEventInternal(Long id);
+
 }

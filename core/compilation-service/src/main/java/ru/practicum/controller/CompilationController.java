@@ -49,6 +49,11 @@ public class CompilationController {
     @PostMapping("/admin/compilations")
     public ResponseEntity<CompilationDto> saveCompilation(@Valid @RequestBody NewCompilationDto newCompilationDto) {
         log.info(Message.SAVE_COMPILATION);
+        log.info("=== НАЧАЛО ЗАПРОСА ===");
+        log.info("Получен DTO: {}", newCompilationDto);
+        log.info("title = '{}'", newCompilationDto != null ? newCompilationDto.getTitle() : "null");
+        log.info("pinned = {}", newCompilationDto != null ? newCompilationDto.getPinned() : "null");
+        log.info("events = {}", newCompilationDto != null ? newCompilationDto.getEvents() : "null");
         CompilationDto result = compilationService.saveCompilation(newCompilationDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }

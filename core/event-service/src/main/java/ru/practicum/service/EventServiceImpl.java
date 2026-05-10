@@ -225,10 +225,25 @@ public class EventServiceImpl implements EventService {
                     dto.setInitiator(toUserShortDto(users.get(e.getInitiator())));
                     dto.setCategory(categories.get(e.getCategory()));
                     dto.setLocation(locationMapper.locationEntityToLocation(locations.get(e.getLocation())));
+                    try {
+                        Long confirmedCount = requestClient.getConfirmedRequestsCount(e.getId());
+                        dto.setConfirmedRequests(confirmedCount);
+                        log.info("Event {} confirmedCount = {}", e.getId(), confirmedCount);
+                    } catch (Exception ex) {
+                        log.warn("Failed to get confirmed requests for event {}: {}", e.getId(), ex.getMessage());
+                        dto.setConfirmedRequests(0L);
+                    }
                     return dto;
                 }).toList();
 
         return ResponseEntity.ok(list);
+    }
+
+    @Override
+    public List<EventShortDto> getEventsByIds(List<Long> ids) {
+        return eventRepository.findAllById(ids).stream()
+                .map(eventMapper::eventToEventShortDto)
+                .toList();
     }
 
     @Override
@@ -331,13 +346,30 @@ public class EventServiceImpl implements EventService {
         return ResponseEntity.ok(getEventFullDto(eventRepository.save(event), location));
     }
 
+    @Override
+    public EventFullDto getEventInternal(Long id) {
+        log.info("Получение события {} (internal, без проверки публикации)", id);
+
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + id + " не найдено"));
+
+        LocationEntity location = locationRepository.findById(event.getLocation())
+                .orElseThrow(() -> new NotFoundException("Локация не найдена"));
+
+        return getEventFullDto(event, location);
+    }
+
     private EventFullDto getEventFullDto(Event event, LocationEntity location) {
         UserDto user = userClient.getUser(event.getInitiator());
         CategoryDto category = categoryClient.getCategory(event.getCategory());
+        log.info("Getting confirmed requests count for event {}", event.getId());
+        Long confirmedCount = requestClient.getConfirmedRequestsCount(event.getId());
+        log.info("Confirmed requests count = {}", confirmedCount);
 
         EventFullDto eventFullDto = eventMapper.eventToEventFullDto(event);
         eventFullDto.setPublishedOn(OffsetDateTime.now().format(DateTimeFormatter.ofPattern(Values.DATE_TIME_PATTERN)));
         eventFullDto.setInitiator(toUserShortDto(user));
+        eventFullDto.setConfirmedRequests(confirmedCount);
         eventFullDto.setCategory(category);
         eventFullDto.setLocation(locationMapper.locationEntityToLocation(location));
 

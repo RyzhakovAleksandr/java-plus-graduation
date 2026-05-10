@@ -48,12 +48,13 @@ public class RequestServiceImpl implements RequestService {
             throw new NotFoundException(String.format(Message.USER_NOT_FOUND, userId));
         }
 
-        EventFullDto event = eventClient.getEvent(eventId);
+        EventFullDto event = eventClient.getEventInternal(eventId);
         if (event == null) {
             throw new NotFoundException(String.format(Message.EVENT_NOT_FOUND, eventId));
         }
 
         if (!"PUBLISHED".equals(event.getState())) {
+            log.warn("Попытка подать заявку на неопубликованное событие {}", eventId);
             throw new ForbiddenException(Message.EVENT_NOT_PUBLISHED);
         }
 
@@ -113,16 +114,18 @@ public class RequestServiceImpl implements RequestService {
 
         long confirmedCount = requestRepository.countByEventIdAndStatus(eventId, StatusRequest.CONFIRMED.toString());
 
+        if (requests.isEmpty()) {
+            throw new ForbiddenException("Заявки уже обработаны или не существуют");
+        }
         for (Request request : requests) {
             if (statusUpdateRequest.getStatus() == StatusRequest.CONFIRMED) {
-                if (event.getParticipantLimit() == 0 || confirmedCount < event.getParticipantLimit()) {
-                    request.setStatus(StatusRequest.CONFIRMED.toString());
-                    confirmed.add(requestMapper.toParticipationRequestDto(request));
-                    confirmedCount++;
-                } else {
-                    request.setStatus(StatusRequest.REJECTED.toString());
-                    rejected.add(requestMapper.toParticipationRequestDto(request));
+                // Проверка лимита перед подтверждением
+                if (event.getParticipantLimit() > 0 && confirmedCount >= event.getParticipantLimit()) {
+                    throw new ForbiddenException("Достигнут лимит участников");
                 }
+                request.setStatus(StatusRequest.CONFIRMED.toString());
+                confirmed.add(requestMapper.toParticipationRequestDto(request));
+                confirmedCount++;
             } else if (statusUpdateRequest.getStatus() == StatusRequest.REJECTED) {
                 request.setStatus(StatusRequest.REJECTED.toString());
                 rejected.add(requestMapper.toParticipationRequestDto(request));
@@ -139,10 +142,21 @@ public class RequestServiceImpl implements RequestService {
         }
     }
 
+    @Override
+    public Long getConfirmedRequestsCount(Long eventId) {
+        log.info("Получение количества подтверждённых заявок для события {}", eventId);
+        return requestRepository.countByEventIdAndStatus(eventId, StatusRequest.CONFIRMED.toString());
+    }
+
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         log.info(Message.LOG_CANCEL_REQUEST, requestId, userId);
         Request request = requestRepository.findByIdAndRequesterId(requestId, userId)
                 .orElseThrow(() -> new NotFoundException(Message.REQUEST_NOT_FOUND));
+
+        if (StatusRequest.CONFIRMED.toString().equals(request.getStatus())) {
+            log.warn("Попытка отменить уже подтверждённую заявку {}", requestId);
+            throw new ForbiddenException("Нельзя отменить уже подтверждённую заявку");
+        }
 
         request.setStatus(StatusRequest.CANCELED.toString());
         request = requestRepository.save(request);
@@ -153,6 +167,38 @@ public class RequestServiceImpl implements RequestService {
     public List<ParticipationRequestDto> getRequestsByUser(Long userId) {
         log.info(Message.LOG_REQUESTS_BY_USER,  userId);
         return requestRepository.findAllByRequesterId(userId).stream()
+                .map(requestMapper::toParticipationRequestDto)
+                .toList();
+    }
+
+    @Override
+    public List<ParticipationRequestDto> getEventParticipants(Long userId, Long eventId) {
+        log.info(Message.LOG_GET_REQUEST_INITIATOR, eventId, userId);
+
+        log.info("=== getEventParticipants ===");
+        log.info("userId={}, eventId={}", userId, eventId);
+
+        EventFullDto event = eventClient.getEvent(eventId);
+
+        if (event == null) {
+            throw new NotFoundException(String.format(Message.EVENT_NOT_FOUND, eventId));
+        }
+        log.info("Event initiator id: {}", event.getInitiator().getId());
+        log.info("Current userId: {}", userId);
+
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new ForbiddenException(Message.ONLY_INITIATOR_CAN_VIEW);
+        }
+
+        List<Request> requests = requestRepository.findAllByEventId(eventId);
+        log.info("Найдено заявок в БД: {}", requests.size());
+
+        for (Request r : requests) {
+            log.info("Заявка: id={}, event={}, requester={}, status={}",
+                    r.getId(), r.getEvent(), r.getRequester(), r.getStatus());
+        }
+
+        return requestRepository.findAllByEventId(eventId).stream()
                 .map(requestMapper::toParticipationRequestDto)
                 .toList();
     }
