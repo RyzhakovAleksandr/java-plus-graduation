@@ -28,7 +28,11 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/admin/users")
+    private static final String ADMIN_USERS = "/admin/users";
+    private static final String ADMIN_USERS_ID = "/admin/users/{userId}";
+    private static final String USERS_ID = "/users/{userId}";
+
+    @PostMapping(ADMIN_USERS)
     public ResponseEntity<UserDto> registerUser(@Valid @RequestBody NewUserRequest newUserRequest) {
         log.info(Message.MESSAGE_REGISTER_USER, newUserRequest);
         UserDto userDto = userService.addUser(newUserRequest);
@@ -36,14 +40,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 
-    @DeleteMapping("/admin/users/{userId}")
+    @DeleteMapping(ADMIN_USERS_ID)
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         log.info(Message.MESSAGE_DELETE_USER, userId);
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/admin/users")
+    @GetMapping(ADMIN_USERS)
     public ResponseEntity<List<UserDto>> getUsers(
             @RequestParam(required = false) List<Long> ids,
             @RequestParam(defaultValue = "0") Integer from,
@@ -54,7 +58,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/users/{userId}")
+    @GetMapping(USERS_ID)
     public ResponseEntity<UserDto> getUser(@PathVariable Long userId) {
         log.info(Message.MESSAGE_GET_USER, userId);
         UserDto user = userService.getUserById(userId);

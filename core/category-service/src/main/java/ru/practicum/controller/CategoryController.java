@@ -30,7 +30,12 @@ import java.util.List;
 public class CategoryController {
     private final CategoryService categoryService;
 
-    @PostMapping("/admin/categories")
+    private static final String ADMIN_CATEGORIES = "/admin/categories";
+    private static final String ADMIN_CATEGORIES_ID = "/admin/categories/{catId}";
+    private static final String CATEGORIES = "/categories";
+    private static final String CATEGORIES_ID = "/categories/{catId}";
+
+    @PostMapping(ADMIN_CATEGORIES)
     public ResponseEntity<CategoryDto> addCategory(@Valid @RequestBody NewCategoryDto newCategoryDto) {
         log.info(Message.MESSAGE_ADD_CATEGORIES, newCategoryDto);
         CategoryDto categoryDto = categoryService.addCategory(newCategoryDto);
@@ -38,7 +43,7 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryDto);
     }
 
-    @DeleteMapping("/admin/categories/{catId}")
+    @DeleteMapping(ADMIN_CATEGORIES_ID)
     public ResponseEntity<Void> deleteCategory(@PathVariable("catId") Long catId) {
         log.info(Message.MESSAGE_DELETE_CATEGORIES, catId);
         categoryService.deleteCategory(catId);
@@ -46,7 +51,7 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/categories")
+    @GetMapping(CATEGORIES)
     public ResponseEntity<List<CategoryDto>> getCategories(
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
@@ -56,7 +61,7 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
-    @GetMapping("/categories/{catId}")
+    @GetMapping(CATEGORIES_ID)
     public ResponseEntity<CategoryDto> getCategory(@PathVariable("catId") Long catId) {
         log.info(Message.MESSAGE_GET_CATEGORY, catId);
         CategoryDto category = categoryService.getCategoryById(catId);
@@ -64,7 +69,7 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
-    @PatchMapping("/admin/categories/{catId}")
+    @PatchMapping(ADMIN_CATEGORIES_ID)
     public ResponseEntity<CategoryDto> updateCategory(
             @PathVariable("catId") Long catId,
             @Valid @RequestBody CategoryDto categoryDto) {

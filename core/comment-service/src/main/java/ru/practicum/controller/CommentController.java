@@ -28,7 +28,15 @@ import java.util.List;
 public class CommentController {
     private final CommentService commentService;
 
-    @PostMapping("/user/{userId}/comments/{eventId}")
+    private static final String USER_COMMENTS_EVENT = "/user/{userId}/comments/{eventId}";
+    private static final String USER_COMMENTS_EVENT_COMMENT = "/user/{userId}/comments/{eventId}/{commentId}";
+    private static final String USER_COMMENTS = "/user/{userId}/comments";
+    private static final String USER_COMMENTS_ID = "/user/{userId}/comments/{commentId}";
+    private static final String ADMIN_COMMENTS_ID = "/admin/comments/{commentId}";
+    private static final String COMMENTS_EVENT = "/comments/event/{eventId}";
+    private static final String COMMENTS_ID = "/comments/{commentId}";
+
+    @PostMapping(USER_COMMENTS_EVENT)
     public ResponseEntity<CommentDto> addComment(
             @PathVariable Long userId,
             @PathVariable Long eventId,
@@ -38,7 +46,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    @PatchMapping("/user/{userId}/comments/{eventId}/{commentId}")
+    @PatchMapping(USER_COMMENTS_EVENT_COMMENT)
     public ResponseEntity<CommentDto> updateComment(
             @PathVariable Long userId,
             @PathVariable Long eventId,
@@ -49,7 +57,7 @@ public class CommentController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/user/{userId}/comments")
+    @GetMapping(USER_COMMENTS)
     public ResponseEntity<List<CommentDto>> getCommentsByAuthor(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "0") Integer from,
@@ -59,7 +67,7 @@ public class CommentController {
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping("/user/{userId}/comments/{commentId}")
+    @DeleteMapping(USER_COMMENTS_ID)
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long userId,
             @PathVariable Long commentId) {
@@ -68,14 +76,14 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/admin/comments/{commentId}")
+    @DeleteMapping(ADMIN_COMMENTS_ID)
     public ResponseEntity<Void> deleteCommentByAdmin(@PathVariable Long commentId) {
         log.info(Message.ADMIN_DELETE_COMMENT, commentId);
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/comments/event/{eventId}")
+    @GetMapping(COMMENTS_EVENT)
     public ResponseEntity<List<CommentDto>> getComments(
             @PathVariable Long eventId,
             @RequestParam(defaultValue = "0") Integer from,
@@ -85,7 +93,7 @@ public class CommentController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/comments/{commentId}")
+    @GetMapping(COMMENTS_ID)
     public ResponseEntity<CommentDto> getCommentById(@PathVariable Long commentId) {
         log.info(Message.GET_COMMENT_BY_ID, commentId);
         CommentDto result = commentService.getCommentById(commentId);

@@ -29,7 +29,12 @@ import java.util.List;
 public class CompilationController {
     private final CompilationService compilationService;
 
-    @GetMapping("/compilations")
+    private static final String COMPILATIONS = "/compilations";
+    private static final String COMPILATIONS_ID = "/compilations/{compId}";
+    private static final String ADMIN_COMPILATIONS = "/admin/compilations";
+    private static final String ADMIN_COMPILATIONS_ID = "/admin/compilations/{compId}";
+
+    @GetMapping(COMPILATIONS)
     public ResponseEntity<List<CompilationDto>> getCompilations(
             @RequestParam(required = false) Boolean pinned,
             @RequestParam(defaultValue = "0") Integer from,
@@ -39,21 +44,21 @@ public class CompilationController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/compilations/{compId}")
+    @GetMapping(COMPILATIONS_ID)
     public ResponseEntity<CompilationDto> getCompilation(@PathVariable Long compId) {
         log.info(Message.GET_COMPILATION, compId);
         CompilationDto result = compilationService.getCompilation(compId);
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/admin/compilations")
+    @PostMapping(ADMIN_COMPILATIONS)
     public ResponseEntity<CompilationDto> saveCompilation(@Valid @RequestBody NewCompilationDto newCompilationDto) {
         log.info(Message.SAVE_COMPILATION);
         CompilationDto result = compilationService.saveCompilation(newCompilationDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    @PatchMapping("/admin/compilations/{compId}")
+    @PatchMapping(ADMIN_COMPILATIONS_ID)
     public ResponseEntity<CompilationDto> updateCompilation(
             @PathVariable Long compId,
             @Valid @RequestBody UpdateCompilationRequest updateCompilationRequest) {
@@ -62,7 +67,7 @@ public class CompilationController {
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping("/admin/compilations/{compId}")
+    @DeleteMapping(ADMIN_COMPILATIONS_ID)
     public ResponseEntity<Void> deleteCompilation(@PathVariable Long compId) {
         log.info(Message.DELETE_COMPILATION, compId);
         compilationService.deleteCompilation(compId);

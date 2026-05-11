@@ -25,7 +25,6 @@ import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.dto.UpdateEventAdminRequest;
 import ru.practicum.dto.UpdateEventUserRequest;
 import ru.practicum.repository.EventRepository;
-import ru.practicum.repository.LocationRepository;
 import ru.practicum.service.EventService;
 
 import java.util.List;
@@ -37,9 +36,21 @@ public class EventController {
     private final EventService eventService;
 
     private final EventRepository eventRepository;
-    private final LocationRepository locationRepository;
 
-    @PostMapping("/users/{userId}/events")
+    private static final String USERS_EVENTS = "/users/{userId}/events";
+    private static final String USERS_EVENTS_REQUESTS = "/users/{userId}/events/{eventId}/requests";
+    private static final String EVENTS_ID = "/events/{id}";
+    private static final String USERS_EVENTS_ID = "/users/{userId}/events/{eventId}";
+    private static final String EVENTS = "/events";
+    private static final String ADMIN_EVENTS = "/admin/events";
+    private static final String USERS_EVENTS_USER = "/users/{userId}/events";
+    private static final String USERS_EVENTS_UPDATE = "/users/{userId}/events/{eventId}";
+    private static final String ADMIN_EVENTS_ID = "/admin/events/{eventId}";
+    private static final String EVENTS_BY_IDS = "/events/by-ids";
+    private static final String EVENTS_BY_CATEGORY_EXISTS = "/events/by-category/{categoryId}/exists";
+    private static final String ADMIN_EVENTS_INTERNAL = "/admin/events/{id}";
+
+    @PostMapping(USERS_EVENTS)
     public ResponseEntity<EventFullDto> addEvent(
             @PathVariable Long userId,
             @Valid @RequestBody NewEventDto newEventDto) {
@@ -47,7 +58,7 @@ public class EventController {
         return eventService.addEvent(userId, newEventDto);
     }
 
-    @PatchMapping("/users/{userId}/events/{eventId}/requests")
+    @PatchMapping(USERS_EVENTS_REQUESTS)
     public ResponseEntity<EventRequestStatusUpdateResult> changeRequestStatus(
             @PathVariable Long userId,
             @PathVariable Long eventId,
@@ -56,13 +67,13 @@ public class EventController {
         return eventService.changeRequestStatus(userId, eventId, eventRequestStatusRequest);
     }
 
-    @GetMapping("/events/{id}")
+    @GetMapping(EVENTS_ID)
     public ResponseEntity<EventFullDto> getEvent(@PathVariable Long id) {
         log.info(Message.LOG_GET_EVENT, id);
         return eventService.getEvent(id);
     }
 
-    @GetMapping("/users/{userId}/events/{eventId}/requests")
+    @GetMapping(USERS_EVENTS_REQUESTS)
     public ResponseEntity<List<ParticipationRequestDto>> getEventParticipants(
             @PathVariable Long userId,
             @PathVariable Long eventId) {
@@ -70,7 +81,7 @@ public class EventController {
         return eventService.getEventParticipants(userId, eventId);
     }
 
-    @GetMapping("/users/{userId}/events/{eventId}")
+    @GetMapping(USERS_EVENTS_ID)
     public ResponseEntity<EventFullDto> getEventUser(
             @PathVariable Long userId,
             @PathVariable Long eventId) {
@@ -78,7 +89,7 @@ public class EventController {
         return eventService.getEventUser(userId, eventId);
     }
 
-    @GetMapping("/events")
+    @GetMapping(EVENTS)
     public ResponseEntity<List<EventShortDto>> getEvents(
             @RequestParam(required = false) String text,
             @RequestParam(required = false) List<Long> categories,
@@ -103,7 +114,7 @@ public class EventController {
                             .build());
     }
 
-    @GetMapping("/admin/events")
+    @GetMapping(ADMIN_EVENTS)
     public ResponseEntity<List<EventFullDto>> getEventsAdmin(
             @RequestParam(required = false) List<Long> users,
             @RequestParam(required = false) List<String> states,
@@ -124,7 +135,7 @@ public class EventController {
                         .build());
     }
 
-    @GetMapping("/users/{userId}/events")
+    @GetMapping(USERS_EVENTS_USER)
     public ResponseEntity<List<EventShortDto>> getEventsUser(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "0") Integer from,
@@ -133,7 +144,7 @@ public class EventController {
         return eventService.getEventsUser(userId, from, size);
     }
 
-    @PatchMapping("/users/{userId}/events/{eventId}")
+    @PatchMapping(USERS_EVENTS_UPDATE)
     public ResponseEntity<EventFullDto> updateEvent(
             @PathVariable Long userId,
             @PathVariable Long eventId,
@@ -142,7 +153,7 @@ public class EventController {
         return eventService.updateEvent(userId, eventId, updateEventUserRequest);
     }
 
-    @PatchMapping("/admin/events/{eventId}")
+    @PatchMapping(ADMIN_EVENTS_ID)
     public ResponseEntity<EventFullDto> updateEventAdmin(
             @PathVariable Long eventId,
             @Valid@RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
@@ -150,20 +161,20 @@ public class EventController {
         return eventService.updateEventAdmin(eventId, updateEventAdminRequest);
     }
 
-    @GetMapping("/events/by-ids")
+    @GetMapping(EVENTS_BY_IDS)
     public ResponseEntity<List<EventShortDto>> getEventsByIds(@RequestParam List<Long> ids) {
         log.info("GET /events/by-ids?ids={}", ids);
         List<EventShortDto> events = eventService.getEventsByIds(ids);
         return ResponseEntity.ok(events);
     }
 
-    @GetMapping("/events/by-category/{categoryId}/exists")
+    @GetMapping(EVENTS_BY_CATEGORY_EXISTS)
     public ResponseEntity<Boolean> hasEventsByCategory(@PathVariable Long categoryId) {
         boolean exists = eventRepository.existsByCategoryId(categoryId);
         return ResponseEntity.ok(exists);
     }
 
-    @GetMapping("/admin/events/{id}")
+    @GetMapping(ADMIN_EVENTS_INTERNAL)
     public ResponseEntity<EventFullDto> getEventInternal(@PathVariable Long id) {
         log.info("GET /admin/events/{} (internal)", id);
         return ResponseEntity.ok(eventService.getEventInternal(id));

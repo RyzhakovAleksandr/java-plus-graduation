@@ -27,7 +27,12 @@ import java.util.List;
 public class RequestController {
     private final RequestService requestService;
 
-    @PostMapping("/users/{userId}/requests")
+    private static final String USERS_REQUESTS = "/users/{userId}/requests";
+    private static final String USERS_REQUESTS_CANCEL = "/users/{userId}/requests/{requestId}/cancel";
+    private static final String USERS_EVENTS_REQUESTS = "/users/{userId}/events/{eventId}/requests";
+    private static final String EVENTS_CONFIRMED_COUNT = "/events/{eventId}/confirmed-count";
+
+    @PostMapping(USERS_REQUESTS)
     public ResponseEntity<ParticipationRequestDto> addParticipationRequest(
             @PathVariable Long userId,
             @RequestParam Long eventId) {
@@ -37,7 +42,7 @@ public class RequestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(participationRequestDto);
     }
 
-    @PatchMapping("/users/{userId}/requests/{requestId}/cancel")
+    @PatchMapping(USERS_REQUESTS_CANCEL)
     public ResponseEntity<ParticipationRequestDto> cancelRequest(
             @PathVariable Long userId,
             @PathVariable Long requestId) {
@@ -47,7 +52,7 @@ public class RequestController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/users/{userId}/requests")
+    @GetMapping(USERS_REQUESTS)
     public ResponseEntity<List<ParticipationRequestDto>> getUserRequests(@PathVariable Long userId) {
         log.info(Message.GET_USER_REQUEST, userId);
 
@@ -55,7 +60,7 @@ public class RequestController {
         return ResponseEntity.ok(requests);
     }
 
-    @GetMapping("/users/{userId}/events/{eventId}/requests")
+    @GetMapping(USERS_EVENTS_REQUESTS)
     public ResponseEntity<List<ParticipationRequestDto>> getEventParticipants(
             @PathVariable Long userId,
             @PathVariable Long eventId) {
@@ -64,7 +69,7 @@ public class RequestController {
         return ResponseEntity.ok(result);
     }
 
-    @PatchMapping("/users/{userId}/events/{eventId}/requests")
+    @PatchMapping(USERS_EVENTS_REQUESTS)
     public ResponseEntity<EventRequestStatusUpdateResult> updateRequestStatus(
             @PathVariable Long userId,
             @PathVariable Long eventId,
@@ -74,7 +79,7 @@ public class RequestController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/events/{eventId}/confirmed-count")
+    @GetMapping(EVENTS_CONFIRMED_COUNT)
     public ResponseEntity<Long> getConfirmedRequestsCount(@PathVariable Long eventId) {
         log.info(Message.GET_CONFIRMED_REQUEST, eventId);
         Long count = requestService.getConfirmedRequestsCount(eventId);
