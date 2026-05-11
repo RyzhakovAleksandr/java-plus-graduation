@@ -15,13 +15,6 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Query(nativeQuery = true, value = """
             SELECT *
             FROM requests
-            WHERE id = ANY(:ids)
-            """)
-    List<Request> getRequestsByIds(@Param("ids") Long[] ids);
-
-    @Query(nativeQuery = true, value = """
-            SELECT *
-            FROM requests
             WHERE requester = :userId AND event = :eventId
             """)
     List<Request> getRequestsByUserIdAndEventId(@Param("userId") Long userId, @Param("eventId") Long eventId);
@@ -62,29 +55,4 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
         WHERE r.event = :eventId
         """)
     List<Request> findAllByEventId(@Param("eventId") Long eventId);
-
-    @Query("""
-            SELECT r.event, COUNT(r)
-            FROM Request r
-            WHERE r.event IN :eventIds
-            AND r.status = :status
-            GROUP BY r.event
-            """)
-    List<Object[]> countConfirmedRequestsByEventIdsGrouped(
-            @Param("eventIds") List<Long> eventIds,
-            @Param("status") String status
-    );
-
-    default Map<Long, Long> getConfirmedRequestsCountMap(List<Long> eventIds, String status) {
-        if (eventIds == null || eventIds.isEmpty()) {
-            return Map.of();
-        }
-
-        List<Object[]> results = countConfirmedRequestsByEventIdsGrouped(eventIds, status);
-
-        return results.stream().collect(Collectors.toMap(
-                row -> (Long) row[0],
-                row -> (Long) row[1]
-        ));
-    }
 }

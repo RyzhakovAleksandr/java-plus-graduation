@@ -64,20 +64,17 @@ public class EventSpecification {
         };
 
         Pageable pageable;
-
         if (request.getSort() != null) {
-            String sort;
-
-            if (request.getSort().equals(StatusSort.EVENT_DATE.toString())) {
-                sort = "createdAt";
-            } else {
-                sort = "views";
-            }
-
+            String sortField = request.getSort().equals(StatusSort.EVENT_DATE.toString()) ? "eventDate" : "views";
             pageable = PageRequest.of(
                     request.getFrom() / request.getSize(),
                     request.getSize(),
-                    Sort.by(sort).descending()
+                    Sort.by(sortField).descending()
+            );
+        } else {
+            pageable = PageRequest.of(
+                    request.getFrom() / request.getSize(),
+                    request.getSize()
             );
         }
 
@@ -102,7 +99,7 @@ public class EventSpecification {
                 predicates.add(cb.in(r.get("state")).value(request.getStates()));
             }
 
-            if (request.getStates() != null) {
+            if (request.getCategories() != null) {
                 predicates.add(cb.in(r.get("category")).value(request.getCategories()));
             }
 

@@ -86,7 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         boolean hasEvents = eventClient.hasEventsByCategory(categoryId);
         if (hasEvents) {
-            throw new ForbiddenException("Нельзя удалить категорию, так как с ней связаны события");
+            throw new ForbiddenException(Message.CAN_NOT_DELETE_CATEGORY);
         }
         categoryRepository.delete(category);
         log.info(Message.LOG_DELETED_CATEGORY, categoryId);
@@ -99,23 +99,23 @@ public class CategoryServiceImpl implements CategoryService {
 
     private void validateCategoryName(String name) {
         if (name == null) {
-            throw new ValidationException("Имя категории обязательно для заполнения");
+            throw new ValidationException(Message.TITLE_FOR_CATEGORY_MUST);
         }
         String trimmed = name.trim();
         if (trimmed.isEmpty()) {
-            throw new ValidationException("Имя категории не может быть пустым или состоять только из пробелов");
+            throw new ValidationException(Message.TITLE_FOR_CATEGORY_IS_EMPTY);
         }
         if (trimmed.length() < 1) {
-            throw new ValidationException("Имя категории должно содержать хотя бы 1 символ");
+            throw new ValidationException(Message.TITLE_IS_TOO_SMALL);
         }
         if (trimmed.length() > 50) {
-            throw new ValidationException("Имя категории не может превышать 50 символов");
+            throw new ValidationException(Message.TITLE_IS_TOO_LONG);
         }
     }
 
     private void validateCategoryNotExists(String name) {
         if (categoryRepository.existsByName(name)) {
-            throw new ForbiddenException("Категория с именем '" + name + "' уже существует");
+            throw new ForbiddenException(String.format(Message.CATEGORY_ALREADY_BE, name));
         }
     }
 }

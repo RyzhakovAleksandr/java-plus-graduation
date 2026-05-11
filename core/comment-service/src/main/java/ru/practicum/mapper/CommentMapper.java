@@ -1,6 +1,5 @@
 package ru.practicum.mapper;
 
-import org.mapstruct.MappingTarget;
 import ru.practicum.constant.Values;
 import ru.practicum.model.Comment;
 
@@ -30,8 +29,6 @@ public interface CommentMapper {
     @Mapping(target = "created", source = "created", qualifiedByName = "formatDateTime")
     @Mapping(target = "edited", source = "edited", qualifiedByName = "formatDateTime")
     CommentDto toCommentDto(Comment comment);
-
-    void updateComment(@MappingTarget Comment comment, NewCommentDto newCommentDto);
 
     @Named("formatDateTime")
     default String formatDateTime(LocalDateTime dateTime) {

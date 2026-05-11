@@ -18,24 +18,6 @@ public class RequestClientFallbackFactory implements FallbackFactory<RequestClie
         return new RequestClient() {
 
             @Override
-            public List<ParticipationRequestDto> getUserRequests(Long userId) {
-                log.warn(Message.GET_REQUEST_SERVICE_NOT_AVAILABLE, userId);
-                return List.of();
-            }
-
-            @Override
-            public ParticipationRequestDto addRequest(Long userId, Long eventId) {
-                log.error(Message.ADD_REQUEST_SERVICE_NOT_AVAILABLE, eventId);
-                throw new RuntimeException(Message.REQUEST_SERVICE_NOT_AVAILABLE);
-            }
-
-            @Override
-            public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
-                log.error(Message.CANCEL_REQUEST_SERVICE_NOT_AVAILABLE, requestId);
-                throw new RuntimeException(Message.REQUEST_SERVICE_NOT_AVAILABLE);
-            }
-
-            @Override
             public List<ParticipationRequestDto> getEventParticipants(Long userId, Long eventId) {
                 log.warn(Message.GET_REQUEST_EVENTS_SERVICE_NOT_AVAILABLE, eventId);
                 return List.of();
@@ -50,7 +32,7 @@ public class RequestClientFallbackFactory implements FallbackFactory<RequestClie
             @Override
             public Long getConfirmedRequestsCount(Long eventId) {
                 log.warn(Message.GET_CONFIRMED_REQUESTS_COUNT_SERVICE_NOT_AVAILABLE, eventId);
-                return 0L;  // fallback — возвращаем 0
+                return 0L;
             }
         };
     }

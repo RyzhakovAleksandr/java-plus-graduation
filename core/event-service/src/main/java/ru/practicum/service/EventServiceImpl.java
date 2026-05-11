@@ -228,9 +228,9 @@ public class EventServiceImpl implements EventService {
                     try {
                         Long confirmedCount = requestClient.getConfirmedRequestsCount(e.getId());
                         dto.setConfirmedRequests(confirmedCount);
-                        log.info("Event {} confirmedCount = {}", e.getId(), confirmedCount);
+                        log.info(Message.MESSAGE_COUNT_CONFIRMED, e.getId(), confirmedCount);
                     } catch (Exception ex) {
-                        log.warn("Failed to get confirmed requests for event {}: {}", e.getId(), ex.getMessage());
+                        log.warn(Message.CAN_NOT_GET_CONFIRMED_REQUEST, e.getId(), ex.getMessage());
                         dto.setConfirmedRequests(0L);
                     }
                     return dto;
@@ -348,13 +348,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getEventInternal(Long id) {
-        log.info("Получение события {} (internal, без проверки публикации)", id);
+        log.info(Message.GET_EVENT, id);
 
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Событие с id=" + id + " не найдено"));
+                .orElseThrow(() -> new NotFoundException(String.format(Message.EXCEPTION_EVENT_NOT_FOUND, id)));
 
         LocationEntity location = locationRepository.findById(event.getLocation())
-                .orElseThrow(() -> new NotFoundException("Локация не найдена"));
+                .orElseThrow(() -> new NotFoundException(Message.EXCEPTION_LOCAL_NOT_FOUND));
 
         return getEventFullDto(event, location);
     }

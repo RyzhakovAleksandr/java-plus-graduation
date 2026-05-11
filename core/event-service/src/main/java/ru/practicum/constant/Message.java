@@ -23,13 +23,15 @@ public class Message {
     public static final String MESSAGE_GET_EVENTS_FOR_ADMIN = "Поступил запрос на получение события администратором";
     public static final String MESSAGE_GET_EVENTS_FOR_USER = "Поступил запрос на получение события пользователем";
     public static final String MESSAGE_UPDATE_EVENT = "Поступил запрос на обновление события";
-
+    public static final String MESSAGE_COUNT_CONFIRMED = "Event {} confirmedCount = {}";
+    public static final String GET_EVENT = "Получение события {} (internal, без проверки публикации)";
     //log.warm
     public static final String CAN_NOT_SEND_STATUS = "Не удалось отправить статистику: {}";
-
+    public static final String CAN_NOT_GET_CONFIRMED_REQUEST = "Failed to get confirmed requests for event {}: {}";
     //exception
     public static final String EXCEPTION_USER_NOT_FOUND = "Пользователь с id=%d не найден";
     public static final String EXCEPTION_CATEGORY_NOT_FOUND = "Категория с id=%d не найдена";
+    public static final String EXCEPTION_EVENT_NOT_FOUND = "Событие с id=%d не найдено";
     public static final String EXCEPTION_NOT_FOUND = "Объект не найден, 404";
     public static final String EXCEPTION_DATE_MISMATCH = "Дата не соответствует требованиям 409";
     public static final String EXCEPTION_NOT_PUBLISHED = "Событие не найдено или недоступно";

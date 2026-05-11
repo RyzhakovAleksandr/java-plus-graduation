@@ -12,7 +12,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.dto.NewEventDto;
-import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.dto.UpdateEventAdminRequest;
 import ru.practicum.dto.UpdateEventUserRequest;
 
@@ -52,10 +51,6 @@ public interface EventMapper {
     @Mapping(target = "location", source = "locationId")
     void updateEventAdminRequestToEvent(@MappingTarget Event event, Long locationId,
                                          UpdateEventAdminRequest updateEventAdminRequest);
-
-    default ParticipationRequestDto toParticipationRequestDto(ParticipationRequestDto dto) {
-        return dto;
-    }
 
     @Named("toOffsetDateTime")
     default OffsetDateTime toOffsetDateTime(String str) {

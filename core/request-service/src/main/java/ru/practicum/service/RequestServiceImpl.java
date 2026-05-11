@@ -54,7 +54,7 @@ public class RequestServiceImpl implements RequestService {
         }
 
         if (!"PUBLISHED".equals(event.getState())) {
-            log.warn("Попытка подать заявку на неопубликованное событие {}", eventId);
+            log.warn(Message.ADD_REQUEST_NOT_PUBLISHED, eventId);
             throw new ForbiddenException(Message.EVENT_NOT_PUBLISHED);
         }
 
@@ -97,7 +97,7 @@ public class RequestServiceImpl implements RequestService {
                                                               EventRequestStatusRequest statusUpdateRequest) {
         log.info(Message.LOG_UPDATE_REQUEST, eventId, userId);
 
-        EventFullDto event = eventClient.getEvent(eventId);
+        EventFullDto event = eventClient.getEventInternal(eventId);
         if (event == null) {
             throw new NotFoundException(String.format(Message.EVENT_NOT_FOUND, eventId));
         }
@@ -115,13 +115,13 @@ public class RequestServiceImpl implements RequestService {
         long confirmedCount = requestRepository.countByEventIdAndStatus(eventId, StatusRequest.CONFIRMED.toString());
 
         if (requests.isEmpty()) {
-            throw new ForbiddenException("Заявки уже обработаны или не существуют");
+            throw new ForbiddenException(Message.REQUEST_ALREADY_READ);
         }
+
         for (Request request : requests) {
             if (statusUpdateRequest.getStatus() == StatusRequest.CONFIRMED) {
-                // Проверка лимита перед подтверждением
                 if (event.getParticipantLimit() > 0 && confirmedCount >= event.getParticipantLimit()) {
-                    throw new ForbiddenException("Достигнут лимит участников");
+                    throw new ForbiddenException(Message.LIMIT_REQUEST);
                 }
                 request.setStatus(StatusRequest.CONFIRMED.toString());
                 confirmed.add(requestMapper.toParticipationRequestDto(request));
@@ -144,7 +144,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public Long getConfirmedRequestsCount(Long eventId) {
-        log.info("Получение количества подтверждённых заявок для события {}", eventId);
+        log.info(Message.LOG_GET_REQUEST_CONFIRMED, eventId);
         return requestRepository.countByEventIdAndStatus(eventId, StatusRequest.CONFIRMED.toString());
     }
 
@@ -154,8 +154,8 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException(Message.REQUEST_NOT_FOUND));
 
         if (StatusRequest.CONFIRMED.toString().equals(request.getStatus())) {
-            log.warn("Попытка отменить уже подтверждённую заявку {}", requestId);
-            throw new ForbiddenException("Нельзя отменить уже подтверждённую заявку");
+            log.warn(Message.CANCEL_CONFIRMED_REQUEST, requestId);
+            throw new ForbiddenException(Message.CAN_NOT_CANCEL_REQUEST);
         }
 
         request.setStatus(StatusRequest.CANCELED.toString());
@@ -193,12 +193,7 @@ public class RequestServiceImpl implements RequestService {
         List<Request> requests = requestRepository.findAllByEventId(eventId);
         log.info("Найдено заявок в БД: {}", requests.size());
 
-        for (Request r : requests) {
-            log.info("Заявка: id={}, event={}, requester={}, status={}",
-                    r.getId(), r.getEvent(), r.getRequester(), r.getStatus());
-        }
-
-        return requestRepository.findAllByEventId(eventId).stream()
+        return requests.stream()
                 .map(requestMapper::toParticipationRequestDto)
                 .toList();
     }

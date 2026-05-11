@@ -18,7 +18,6 @@ import ru.practicum.dto.EventRequestStatusRequest;
 import ru.practicum.dto.EventRequestStatusUpdateResult;
 import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.service.RequestService;
-import ru.practicum.status.StatusRequest;
 
 import java.util.List;
 
@@ -77,7 +76,7 @@ public class RequestController {
 
     @GetMapping("/events/{eventId}/confirmed-count")
     public ResponseEntity<Long> getConfirmedRequestsCount(@PathVariable Long eventId) {
-        log.info("GET /events/{}/confirmed-count", eventId);
+        log.info(Message.GET_CONFIRMED_REQUEST, eventId);
         Long count = requestService.getConfirmedRequestsCount(eventId);
         return ResponseEntity.ok(count);
     }

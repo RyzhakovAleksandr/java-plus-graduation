@@ -19,7 +19,7 @@ import ru.practicum.constant.Message;
 import ru.practicum.dto.CompilationDto;
 import ru.practicum.dto.NewCompilationDto;
 import ru.practicum.dto.UpdateCompilationRequest;
-import ru.practicum.service.CompilationServer;
+import ru.practicum.service.CompilationService;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class CompilationController {
-    private final CompilationServer compilationService;
+    private final CompilationService compilationService;
 
     @GetMapping("/compilations")
     public ResponseEntity<List<CompilationDto>> getCompilations(
@@ -49,11 +49,6 @@ public class CompilationController {
     @PostMapping("/admin/compilations")
     public ResponseEntity<CompilationDto> saveCompilation(@Valid @RequestBody NewCompilationDto newCompilationDto) {
         log.info(Message.SAVE_COMPILATION);
-        log.info("=== НАЧАЛО ЗАПРОСА ===");
-        log.info("Получен DTO: {}", newCompilationDto);
-        log.info("title = '{}'", newCompilationDto != null ? newCompilationDto.getTitle() : "null");
-        log.info("pinned = {}", newCompilationDto != null ? newCompilationDto.getPinned() : "null");
-        log.info("events = {}", newCompilationDto != null ? newCompilationDto.getEvents() : "null");
         CompilationDto result = compilationService.saveCompilation(newCompilationDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }

@@ -13,6 +13,8 @@ public class Message {
     public static final String GET_REQUEST_SERVICE_NOT_AVAILABLE = "request-service недоступен. Возвращаем пустой список заявок пользователя {}";
     public static final String GET_REQUEST_EVENTS_SERVICE_NOT_AVAILABLE = "request-service недоступен. Возвращаем пустой список участников события {}";
     public static final String GET_EVENT_SERVICE_NOT_AVAILABLE = "event-service недоступен. Возвращаем null для события {}";
+    public static final String GET_EVENT_BY_CATEGORY = "event-service недоступен, предполагаем что событий нет";
+    public static final String GET_EVENT_INTERNAL = "event-service недоступен для internal запроса события {}";
     public static final String GET_EVENTS_SERVICE_NOT_AVAILABLE = "event-service недоступен. Возвращаем пустой список событий";
     public static final String GET_SHORT_EVENT_SERVICE_NOT_AVAILABLE = "event-service недоступен. Возвращаем null для краткого события {}";
     public static final String GET_CONFIRMED_REQUESTS_COUNT_SERVICE_NOT_AVAILABLE =
