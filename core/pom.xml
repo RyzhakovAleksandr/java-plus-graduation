@@ -20,7 +20,13 @@
     </properties>
 
     <modules>
-        <module>main-service</module>
+        <module>core-api</module>
+        <module>user-service</module>
+        <module>category-service</module>
+        <module>event-service</module>
+        <module>request-service</module>
+        <module>compilation-service</module>
+        <module>comment-service</module>
     </modules>
 
 </project>

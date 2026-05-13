@@ -5,11 +5,42 @@ spring:
   cloud:
     gateway:
       discovery.locator.enabled: true
+      lower-case-service-id: true
       routes:
-        - id: main_service_route
-          uri: lb://main-service
+        - id: request-service-route
+          uri: lb://request-service
           predicates:
-            - Path=/**
+            - Path=/users/*/requests/**, /users/*/events/*/requests/**
+
+        - id: event-service-route
+          uri: lb://event-service
+          predicates:
+            - Path=/users/*/events/**, /admin/events/**, /events/**
+
+        - id: category-service-route
+          uri: lb://category-service
+          predicates:
+            - Path=/categories/**, /admin/categories/**
+
+        - id: compilation-service-route
+          uri: lb://compilation-service
+          predicates:
+            - Path=/compilations/**, /admin/compilations/**
+
+        - id: comment-service-route
+          uri: lb://comment-service
+          predicates:
+            - Path=/user/*/comments/**, /admin/comments/**, /comments/**
+
+        - id: stats-service-route
+          uri: lb://stats-server
+          predicates:
+            - Path=/hit, /stats/**
+
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/admin/users/**, /users/**
 
 management:
   endpoints:
