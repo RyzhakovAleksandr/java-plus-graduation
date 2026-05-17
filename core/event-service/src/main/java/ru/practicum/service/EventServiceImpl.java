@@ -141,7 +141,7 @@ public class EventServiceImpl implements EventService {
         log.info(Message.MESSAGE_GET_PARTICIPANTS, userId, eventId);
 
         List<ParticipationRequestDto> result = requestClient.getEventParticipants(userId, eventId);
-        return ResponseEntity.ok(List.of());
+        return ResponseEntity.ok(result);
     }
 
     @Override
