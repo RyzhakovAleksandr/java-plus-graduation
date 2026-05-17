@@ -54,5 +54,5 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
         """)
     List<Request> findAllByEventId(@Param("eventId") Long eventId);
 
-    boolean existsByRequesterIdAndEventIdAndStatus(Long requesterId, Long eventId, String status);
+    boolean existsByRequesterAndEventAndStatus(Long requester, Long event, String status);
 }

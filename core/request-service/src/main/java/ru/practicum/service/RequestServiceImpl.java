@@ -202,8 +202,6 @@ public class RequestServiceImpl implements RequestService {
     public Boolean hasUserVisitedEvent(Long userId, Long eventId) {
         log.info("Checking if user visited event: userId={}, eventId={}", userId, eventId);
 
-        return requestRepository.existsByRequesterIdAndEventIdAndStatus(
-                userId, eventId, StatusRequest.CONFIRMED.toString()
-        );
+        return requestRepository.existsByRequesterAndEventAndStatus(userId, eventId, StatusRequest.CONFIRMED.toString());
     }
 }
