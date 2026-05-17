@@ -178,7 +178,7 @@ public class RequestServiceImpl implements RequestService {
         log.info("=== getEventParticipants ===");
         log.info("userId={}, eventId={}", userId, eventId);
 
-        EventFullDto event = eventClient.getEvent(eventId);
+        EventFullDto event = eventClient.getEventInternal(eventId);
 
         if (event == null) {
             throw new NotFoundException(String.format(Message.EVENT_NOT_FOUND, eventId));
