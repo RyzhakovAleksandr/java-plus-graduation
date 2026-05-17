@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -68,9 +69,11 @@ public class EventController {
     }
 
     @GetMapping(EVENTS_ID)
-    public ResponseEntity<EventFullDto> getEvent(@PathVariable Long id) {
+    public ResponseEntity<EventFullDto> getEvent(
+            @PathVariable Long id,
+            @RequestHeader("X-EWM-USER-ID") Long userId) {
         log.info(Message.LOG_GET_EVENT, id);
-        return eventService.getEvent(id);
+        return eventService.getEvent(id, userId);
     }
 
     @GetMapping(USERS_EVENTS_REQUESTS)
@@ -178,5 +181,23 @@ public class EventController {
     public ResponseEntity<EventFullDto> getEventInternal(@PathVariable Long id) {
         log.info("GET /admin/events/{} (internal)", id);
         return ResponseEntity.ok(eventService.getEventInternal(id));
+    }
+
+    @PostMapping("/users/{userId}/events/{eventId}/like")
+    public ResponseEntity<Void> likeEvent(
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
+        log.info("Like event: userId={}, eventId={}", userId, eventId);
+        eventService.likeEvent(userId, eventId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/users/{userId}/recommendations")
+    public ResponseEntity<List<EventShortDto>> getRecommendations(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("Get recommendations for user: userId={}, size={}", userId, size);
+        List<EventShortDto> recommendations = eventService.getRecommendations(userId, size);
+        return ResponseEntity.ok(recommendations);
     }
 }

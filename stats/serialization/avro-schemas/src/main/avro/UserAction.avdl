@@ -1,0 +1,12 @@
+@namespace("ru.practicum.ewm.stats.avro")
+protocol UserActionProtocol {
+
+	import idl "ActionType.avdl";
+
+	record UserActionAvro {
+		long userId;
+		long eventId;
+		ActionTypeAvro actionType;
+		long timestamp;
+	}
+}

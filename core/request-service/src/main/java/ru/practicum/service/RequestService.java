@@ -19,4 +19,6 @@ public interface RequestService {
     List<ParticipationRequestDto> getEventParticipants(Long userId, Long eventId);
 
     Long getConfirmedRequestsCount(Long eventId);
+
+    Boolean hasUserVisitedEvent(Long userId, Long eventId);
 }

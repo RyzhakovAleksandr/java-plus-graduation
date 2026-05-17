@@ -34,6 +34,12 @@ public class RequestClientFallbackFactory implements FallbackFactory<RequestClie
                 log.warn(Message.GET_CONFIRMED_REQUESTS_COUNT_SERVICE_NOT_AVAILABLE, eventId);
                 return 0L;
             }
+
+            @Override
+            public Boolean hasUserVisitedEvent(Long userId, Long eventId) {
+                log.warn("Request service not available for checking visited: userId={}, eventId={}", userId, eventId);
+                return false;
+            }
         };
     }
 }

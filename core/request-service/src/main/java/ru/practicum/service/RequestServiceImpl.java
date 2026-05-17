@@ -197,4 +197,13 @@ public class RequestServiceImpl implements RequestService {
                 .map(requestMapper::toParticipationRequestDto)
                 .toList();
     }
+
+    @Override
+    public Boolean hasUserVisitedEvent(Long userId, Long eventId) {
+        log.info("Checking if user visited event: userId={}, eventId={}", userId, eventId);
+
+        return requestRepository.existsByRequesterIdAndEventIdAndStatus(
+                userId, eventId, StatusRequest.CONFIRMED.toString()
+        );
+    }
 }

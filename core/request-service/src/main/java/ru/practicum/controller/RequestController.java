@@ -85,4 +85,13 @@ public class RequestController {
         Long count = requestService.getConfirmedRequestsCount(eventId);
         return ResponseEntity.ok(count);
     }
+
+    @GetMapping("/users/{userId}/events/{eventId}/visited")
+    public ResponseEntity<Boolean> hasUserVisitedEvent(
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
+        log.info("Checking if user visited event: userId={}, eventId={}", userId, eventId);
+        Boolean result = requestService.hasUserVisitedEvent(userId, eventId);
+        return ResponseEntity.ok(result);
+    }
 }

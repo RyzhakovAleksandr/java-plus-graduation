@@ -27,4 +27,9 @@ public interface RequestClient {
 
     @GetMapping("/events/{eventId}/confirmed-count")
     Long getConfirmedRequestsCount(@PathVariable("eventId") Long eventId);
+
+    @GetMapping("/users/{userId}/events/{eventId}/visited")
+    Boolean hasUserVisitedEvent(
+            @PathVariable("userId") Long userId,
+            @PathVariable("eventId") Long eventId);
 }
