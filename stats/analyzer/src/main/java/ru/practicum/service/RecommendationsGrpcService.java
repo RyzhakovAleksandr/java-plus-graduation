@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.practicum.ewm.stats.proto.*;
+import ru.practicum.messeges.Message;
 import ru.practicum.model.EventSimilarityEntity;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class RecommendationsGrpcService extends RecommendationsControllerGrpc.Re
             long userId = request.getUserId();
             int maxResults = request.getMaxResults();
 
-            log.info("gRPC getSimilarEvents: eventId={}, userId={}, maxResults={}",
+            log.info(Message.GRPC_GET_SIMILAR_EVENT,
                     eventId, userId, maxResults);
 
             List<EventSimilarityEntity> similarEvents =
@@ -42,10 +43,10 @@ public class RecommendationsGrpcService extends RecommendationsControllerGrpc.Re
             }
 
             responseObserver.onCompleted();
-            log.info("Отправлено {} похожих событий для eventId={}", similarEvents.size(), eventId);
+            log.info(Message.SEND_SIMILARITY_EVENT, similarEvents.size(), eventId);
 
         } catch (Exception ex) {
-            log.error("Error gRPC getSimilarEvents", ex);
+            log.error(Message.ERROR_GRPC_GET_SIMILARITY, ex);
             responseObserver.onError(ex);
         }
 
@@ -58,7 +59,7 @@ public class RecommendationsGrpcService extends RecommendationsControllerGrpc.Re
             long userId = request.getUserId();
             int maxResults = request.getMaxResults();
 
-            log.info("gRPC getRecommendationsForUser: userId={}, maxResult={}",
+            log.info(Message.GRPC_RECOMMENDATION_FOR_USER,
                     userId, maxResults);
 
             List<Long> recommendations = recommendationService.getRecommendationsForUser(userId, maxResults);
@@ -73,10 +74,10 @@ public class RecommendationsGrpcService extends RecommendationsControllerGrpc.Re
             }
 
             responseObserver.onCompleted();
-            log.info("Отправлено {} рекомендаций для userId={}", recommendations.size(), userId);
+            log.info(Message.SEND_RECOMMENDATION_FOR_USER, recommendations.size(), userId);
 
         } catch (Exception ex) {
-            log.error("Error gRPC getRecommendationsForUser", ex);
+            log.error(Message.ERROR_GRPC_RECOMMENDATION, ex);
             responseObserver.onError(ex);
         }
     }
@@ -92,14 +93,14 @@ public class RecommendationsGrpcService extends RecommendationsControllerGrpc.Re
                 return;
             }
 
-            log.info("gRPC getInteractionsCount: {} events", eventIds.size());
+            log.info(Message.GRPC_INTERACTION, eventIds.size());
 
             long startTime = System.currentTimeMillis();
 
             Map<Long, Double> scores = recommendationService.getInteractionsCount(eventIds);
 
             long duration = System.currentTimeMillis() - startTime;
-            log.info("Query execution time: {} ms for {} events", duration, eventIds.size());
+            log.info(Message.TIME_QUERY, duration, eventIds.size());
 
             for (Long eventId : eventIds) {
                 RecommendedEventProto response = RecommendedEventProto.newBuilder()
@@ -110,10 +111,10 @@ public class RecommendationsGrpcService extends RecommendationsControllerGrpc.Re
             }
 
             responseObserver.onCompleted();
-            log.info("Отправлено количество взаимодействий для {} событий", eventIds.size());
+            log.info(Message.SEND_INTERACTION, eventIds.size());
 
         } catch (Exception ex) {
-            log.error("Error gRPC getInteractionsCount", ex);
+            log.error(Message.ERROR_GRPC_INTERACTION, ex);
             responseObserver.onError(ex);
         }
     }

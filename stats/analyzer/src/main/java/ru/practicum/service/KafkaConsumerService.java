@@ -10,6 +10,7 @@ import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.mapper.SimilarityMapper;
 import ru.practicum.mapper.UserActionMapper;
+import ru.practicum.messeges.Message;
 import ru.practicum.model.EventSimilarityEntity;
 import ru.practicum.model.UserActionEntity;
 import ru.practicum.repository.EventSimilarityRepository;
@@ -42,7 +43,7 @@ public class KafkaConsumerService {
                     .orElse(null);
 
             if (existing != null) {
-                log.info("Existing entity: userId={}, eventId={}, weight={}, actionType={}",
+                log.info(Message.EXISTING_ENTITY,
                         existing.getUserId(), existing.getEventId(),
                         existing.getWeight(), existing.getActionType());
             }
@@ -54,10 +55,10 @@ public class KafkaConsumerService {
                     existing.setWeight(newWeight);
                     existing.setActionType(userActionMapper.toActionType(avro.getActionType()));
                     existing.setLastActionTime(Instant.ofEpochMilli(avro.getTimestamp()));
-                    log.info("Updating entity: userId={}, eventId={}, oldWeight={}, newWeight={}",
+                    log.info(Message.UPDATE_ENTITY,
                             existing.getUserId(), existing.getEventId(), existing.getWeight(), newWeight);
                 } else {
-                    log.debug("Skipping update: newWeight {} <= oldWeight {}", newWeight, existing.getWeight());
+                    log.debug(Message.SKIPPING_UPDATE_ENTITY, newWeight, existing.getWeight());
                 }
                 entity = existing;
             } else {
@@ -74,7 +75,7 @@ public class KafkaConsumerService {
     )
     public void consumeSimilarity(List<ConsumerRecord<String, EventSimilarityAvro>> records) {
         for (ConsumerRecord<String, EventSimilarityAvro> record : records) {
-            log.info("Received similarity: key={}, eventA={}, eventB={}, score={}",
+            log.info(Message.RECEIVED_SIMILARITY,
                     record.key(),
                     record.value().getEventA(),
                     record.value().getEventB(),
@@ -93,7 +94,7 @@ public class KafkaConsumerService {
             }
 
             similarityRepository.save(entity);
-            log.debug("Saved similarity: eventA={}, eventB={}, score={}",
+            log.debug(Message.SAVED_SIMILARITY,
                     entity.getEventA(), entity.getEventB(), entity.getScore());
         }
     }

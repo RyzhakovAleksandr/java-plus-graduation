@@ -71,7 +71,7 @@ public class SimilarityStore {
     }
 
     public void updateUserWeight(long eventId, long userId, double newWeight) {
-        userEventWeights.computeIfAbsent(eventId, k -> new ConcurrentHashMap<>()).put(userId, newWeight);
+        userEventWeights.computeIfAbsent(eventId, key -> new ConcurrentHashMap<>()).put(userId, newWeight);
     }
 
     public void updateEventSum(long eventId, double delta) {

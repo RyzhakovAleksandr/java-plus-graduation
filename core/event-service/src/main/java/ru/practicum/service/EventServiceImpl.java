@@ -334,7 +334,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void likeEvent(Long userId, Long eventId) {
-        log.info("Like event: userId={}, eventId={}", userId, eventId);
+        log.info(Message.LOG_LIKE_EVENT, userId, eventId);
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(Message.EXCEPTION_NOT_FOUND));
@@ -345,7 +345,7 @@ public class EventServiceImpl implements EventService {
 
         Boolean hasVisited = requestClient.hasUserVisitedEvent(userId, eventId);
         if (hasVisited == null || !hasVisited) {
-            throw new ValidationException("User has not visited this event");
+            throw new ValidationException(Message.USER_NOT_VISITED_EVENT);
         }
 
         recommendationGrpcClient.sendUserAction(userId, eventId, ActionTypeProto.ACTION_LIKE);
@@ -353,7 +353,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getRecommendations(Long userId, int size) {
-        log.info("Get recommendations for user: userId={}, size={}", userId, size);
+        log.info(Message.LOG_GET_RECOMMENDATION, userId, size);
 
         List<Long> recommendedEventIds = recommendationGrpcClient.getRecommendations(userId, size);
 
@@ -375,9 +375,9 @@ public class EventServiceImpl implements EventService {
     private EventFullDto getEventFullDto(Event event, LocationEntity location) {
         UserDto user = userClient.getUser(event.getInitiator());
         CategoryDto category = categoryClient.getCategory(event.getCategory());
-        log.info("Getting confirmed requests count for event {}", event.getId());
+        log.info(Message.GET_COUNT_REQUESTS, event.getId());
         Long confirmedCount = requestClient.getConfirmedRequestsCount(event.getId());
-        log.info("Confirmed requests count = {}", confirmedCount);
+        log.info(Message.COUNT_REQUESTS, confirmedCount);
 
         EventFullDto eventFullDto = eventMapper.eventToEventFullDto(event);
         eventFullDto.setPublishedOn(OffsetDateTime.now().format(DateTimeFormatter.ofPattern(Values.DATE_TIME_PATTERN)));

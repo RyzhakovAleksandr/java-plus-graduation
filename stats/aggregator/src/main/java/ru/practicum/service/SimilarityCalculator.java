@@ -3,6 +3,7 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.messages.Message;
 import ru.practicum.producer.SimilarityProducer;
 import ru.practicum.repository.SimilarityStore;
 import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
@@ -22,21 +23,21 @@ public class SimilarityCalculator {
         long eventId = action.getEventId();
         long userId = action.getUserId();
         double newWeight = store.getWeight(action.getActionType());
-        log.info("newWeight for action {} is {}", action.getActionType(), newWeight);
+        log.info(Message.NEW_WEIGHT_FOR_ACTION, action.getActionType(), newWeight);
 
-        log.debug("Processing user action: userId={}, eventId={}, newWeight={}",
+        log.debug(Message.PROCESS_USER_ACTION,
                 userId, eventId, newWeight);
 
         Double oldWeight = store.getUserWeightForEvent(userId, eventId);
 
         if (oldWeight != null && oldWeight >= newWeight) {
-            log.debug("Weight not increased for user={}, event={}, old={}, new={}, skipping",
+            log.debug(Message.WEIGHT_NOT_UPDATE,
                     userId, eventId, oldWeight, newWeight);
             return;
         }
 
         double delta = (oldWeight == null) ? newWeight : newWeight - oldWeight;
-        log.debug("Delta for event {}: {}", eventId, delta);
+        log.debug(Message.DELTA_FOR_EVENT, eventId, delta);
 
         store.updateUserWeight(eventId, userId, newWeight);
 
@@ -47,7 +48,7 @@ public class SimilarityCalculator {
         store.updateEventSum(eventId, delta);
 
 
-        log.debug("Updated event sum for event {}: {} -> {}", eventId, oldSumA, newSumA);
+        log.debug(Message.WEIGHT_UPDATE, eventId, oldSumA, newSumA);
 
         recalculateSimilarities(eventId, userId, oldWeight, newWeight, action.getTimestamp());
     }
@@ -56,12 +57,12 @@ public class SimilarityCalculator {
                                          double newWeightA, long timestamp) {
         double sumA = store.getEventSum(eventA);
         if (sumA == 0.0) {
-            log.debug("sumA is 0 for event {}, skipping", eventA);
+            log.debug(Message.SUM_WEIGHT_FOR_EVENT, eventA);
             return;
         }
 
         Set<Long> userEvents = store.getUserEvents(userId);
-        log.debug("User {} has interacted with events: {}", userId, userEvents);
+        log.debug(Message.USER_GET_EVENT, userId, userEvents);
 
         int calculatedCount = 0;
 
@@ -70,14 +71,14 @@ public class SimilarityCalculator {
 
             Double weightB = store.getUserWeightForEvent(userId, eventB);
             if (weightB == null) {
-                log.debug("User {} has no weight for event {}, skipping pair ({}, {})",
+                log.debug(Message.USER_DONT_HAVE_WEIGHT,
                         userId, eventB, eventA, eventB);
                 continue;
             }
 
             double sumB = store.getEventSum(eventB);
             if (sumB == 0.0) {
-                log.debug("sumB is 0 for event {}, skipping pair ({}, {})",
+                log.debug(Message.SUM_WEIGHT_FOR_EVENTS,
                         eventB, eventA, eventB);
                 continue;
             }
@@ -86,7 +87,7 @@ public class SimilarityCalculator {
             double newMin = Math.min(newWeightA, weightB);
             double deltaMin = newMin - oldMin;
 
-            log.debug("Pair ({}, {}): oldMin={}, newMin={}, deltaMin={}",
+            log.debug(Message.PAIR_EVENTS,
                     eventA, eventB, oldMin, newMin, deltaMin);
 
             double oldSMin = store.getMinWeightSum(eventA, eventB);
@@ -96,11 +97,11 @@ public class SimilarityCalculator {
             double similarity = newSMin / (Math.sqrt(sumA) * Math.sqrt(sumB));
 
             if (Double.isNaN(similarity)) {
-                log.warn("Similarity is NaN for pair ({}, {}), setting to 0", eventA, eventB);
+                log.warn(Message.SIMILARITY_IS_NAN, eventA, eventB);
                 similarity = 0.0;
             }
 
-            log.debug("Similarity calculated: eventA={}, eventB={}, score={}",
+            log.debug(Message.SIMILARITY_CALCULATED,
                     Math.min(eventA, eventB), Math.max(eventA, eventB), similarity);
 
             EventSimilarityAvro message = EventSimilarityAvro.newBuilder()
@@ -114,7 +115,7 @@ public class SimilarityCalculator {
             calculatedCount++;
         }
 
-        log.debug("Recalculated {} similarities for eventA={} and userId={}",
+        log.debug(Message.SIMILARITY_RECALCULATED,
                 calculatedCount, eventA, userId);
     }
 }

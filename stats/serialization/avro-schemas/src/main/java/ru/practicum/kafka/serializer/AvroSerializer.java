@@ -8,6 +8,7 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Serializer;
+import ru.practicum.messages.Message;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,13 +29,12 @@ public class AvroSerializer<T extends SpecificRecordBase> implements Serializer<
             encoder.flush();
             return out.toByteArray();
         } catch (IOException e) {
-            log.error("Error serializing Avro message", e);
-            throw new SerializationException("Error serializing Avro message", e);
+            log.error(Message.ERROR_SERIALIZER, e);
+            throw new SerializationException(Message.ERROR_SERIALIZER, e);
         }
     }
 
     @Override
     public void close() {
-        // Nothing to close
     }
 }

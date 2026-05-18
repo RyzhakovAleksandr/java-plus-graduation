@@ -31,6 +31,7 @@ public class RequestController {
     private static final String USERS_REQUESTS_CANCEL = "/users/{userId}/requests/{requestId}/cancel";
     private static final String USERS_EVENTS_REQUESTS = "/users/{userId}/events/{eventId}/requests";
     private static final String EVENTS_CONFIRMED_COUNT = "/events/{eventId}/confirmed-count";
+    private static final String USERS_EVENTS_VISITED = "/users/{userId}/events/{eventId}/visited";
 
     @PostMapping(USERS_REQUESTS)
     public ResponseEntity<ParticipationRequestDto> addParticipationRequest(
@@ -86,11 +87,11 @@ public class RequestController {
         return ResponseEntity.ok(count);
     }
 
-    @GetMapping("/users/{userId}/events/{eventId}/visited")
+    @GetMapping(USERS_EVENTS_VISITED)
     public ResponseEntity<Boolean> hasUserVisitedEvent(
             @PathVariable Long userId,
             @PathVariable Long eventId) {
-        log.info("Checking if user visited event: userId={}, eventId={}", userId, eventId);
+        log.info(Message.USER_VISITED_EVENT, userId, eventId);
         Boolean result = requestService.hasUserVisitedEvent(userId, eventId);
         return ResponseEntity.ok(result);
     }

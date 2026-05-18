@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
+import ru.practicum.constant.Message;
 import ru.practicum.ewm.stats.proto.*;
 
 import java.util.Iterator;
@@ -36,7 +37,7 @@ public class RecommendationGrpcClient {
                 .build();
 
         collectorStub.collectUserAction(request);
-        log.info("Sent user action: userId={}, eventId={}, actionType={}", userId, eventId, actionType);
+        log.info(Message.SEND_USER_ACTION, userId, eventId, actionType);
     }
 
     public List<Long> getRecommendations(long userId, int maxResults) {

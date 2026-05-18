@@ -3,6 +3,7 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.messeges.Message;
 import ru.practicum.repository.EventSimilarityRepository;
 import ru.practicum.repository.UserActionRepository;
 import ru.practicum.model.EventSimilarityEntity;
@@ -21,27 +22,27 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public List<EventSimilarityEntity> getSimilarEvents(Long eventId, Long userId, int maxResults) {
-        log.debug("Поиск похожих событий по: eventId={}, userId={}", eventId, userId);
+        log.debug(Message.FIND_SIMILAR_EVENTS, eventId, userId);
 
         List<EventSimilarityEntity> similarEvents = similarityRepository.findSimilarEvents(eventId);
 
         Set<Long> interactedEvents = actionRepository.findUserInteractedEvents(userId);
 
         return similarEvents.stream()
-                .filter(s -> !interactedEvents.contains(getOtherEventId(s, eventId)))
-                .sorted((a, b) -> Double.compare(b.getScore(), a.getScore()))
+                .filter(similarity -> !interactedEvents.contains(getOtherEventId(similarity, eventId)))
+                .sorted((firstEvent, secondEvent) -> Double.compare(secondEvent.getScore(), firstEvent.getScore()))
                 .limit(maxResults)
                 .toList();
     }
 
     @Override
     public List<Long> getRecommendationsForUser(Long userId, int maxResults) {
-        log.debug("Получение персональных рекомендаций для userId={}", userId);
+        log.debug(Message.GET_RECOMMENDATION_FOR_USER, userId);
 
         List<UserActionEntity> recentActions = actionRepository.findRecentActionsByUserId(userId);
 
         if (recentActions.isEmpty()) {
-            log.debug("У пользователя нет последних действий");
+            log.debug(Message.USER_DONT_HAVE_ACTION);
             return Collections.emptyList();
         }
 
@@ -52,8 +53,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         List<EventSimilarityEntity> allSimilar = similarityRepository.findSimilarEventsByEventIds(eventIds);
 
         Map<Long, List<EventSimilarityEntity>> similarByEventId = allSimilar.stream()
-                .collect(Collectors.groupingBy(s ->
-                        eventIds.contains(s.getEventA()) ? s.getEventA() : s.getEventB()
+                .collect(Collectors.groupingBy(similarity ->
+                        eventIds.contains(similarity.getEventA()) ? similarity.getEventA() : similarity.getEventB()
                 ));
 
         Set<Long> interactedEvents = actionRepository.findUserInteractedEvents(userId);
@@ -65,11 +66,11 @@ public class RecommendationServiceImpl implements RecommendationService {
             List<EventSimilarityEntity> similar = similarByEventId.getOrDefault(eventId, Collections.emptyList());
             double weight = action.getWeight();
 
-            for (EventSimilarityEntity s : similar) {
-                Long candidateId = s.getEventA().equals(eventId)
-                        ? s.getEventB() : s.getEventA();
+            for (EventSimilarityEntity similarity : similar) {
+                Long candidateId = similarity.getEventA().equals(eventId)
+                        ? similarity.getEventB() : similarity.getEventA();
                 if (!interactedEvents.contains(candidateId)) {
-                    candidateScores.merge(candidateId, s.getScore() * weight, Double::sum);
+                    candidateScores.merge(candidateId, similarity.getScore() * weight, Double::sum);
                 }
             }
         }

@@ -40,7 +40,7 @@ public class UserActionEntity {
     Long eventId;
 
     @Column(name = "weight", nullable = false)
-    private Double weight;
+    Double weight;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "action_type", nullable = false)

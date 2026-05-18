@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
+import ru.practicum.messages.Message;
 
 @Slf4j
 @Service
@@ -19,17 +20,17 @@ public class KafkaUserActionProducer {
 
     public void send(UserActionAvro message) {
         Long key = message.getUserId();
-        log.info("Sending to Kafka: topic={}, key={}, eventId={}, actionType={}",
+        log.info(Message.LOG_SEND_KAFKA,
                 topic, key, message.getEventId(), message.getActionType());
 
         kafkaTemplate.send(topic, key, message)
                 .whenComplete((result, ex) -> {
                     if (ex == null) {
-                        log.debug("Message sent: partition={}, offset={}",
+                        log.debug(Message.MESSAGE_SEND,
                                 result.getRecordMetadata().partition(),
                                 result.getRecordMetadata().offset());
                     } else {
-                        log.error("Failed to send message", ex);
+                        log.error(Message.ERROR_SEND, ex);
                     }
                 });
     }

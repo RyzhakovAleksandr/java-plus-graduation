@@ -16,12 +16,13 @@ public class Message {
     public static final String GET_REQUEST = "GET /users/{}/events/{}/requests";
     public static final String UPDATE_REQUEST = "PATCH /users/{}/events/{}/requests";
     public static final String GET_CONFIRMED_REQUEST = "GET /events/{}/confirmed-count";
+    public static final String USER_VISITED_EVENT = "Проверка посещения события: userId={}, eventId={}";
     //log.warm
     public static final String ADD_REQUEST_NOT_PUBLISHED = "Попытка подать заявку на неопубликованное событие {}";
     public static final String CANCEL_CONFIRMED_REQUEST =  "Попытка отменить уже подтверждённую заявку {}";
     //exception
     public static final String USER_NOT_FOUND = "Пользователь с id=%d не найден";
-    public static final String EVENT_NOT_FOUND = "Событие с id=&d не найдено";
+    public static final String EVENT_NOT_FOUND = "Событие с id=%d не найдено";
     public static final String REQUEST_NOT_FOUND = "Заявка не найдена";
     public static final String EVENT_NOT_PUBLISHED = "Нельзя участвовать в неопубликованном событии";
     public static final String CAN_NOT_CANCEL_REQUEST = "Нельзя отменить уже подтверждённую заявку";

@@ -10,6 +10,7 @@ import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.ewm.stats.proto.ActionTypeProto;
 import ru.practicum.ewm.stats.proto.UserActionControllerGrpc;
 import ru.practicum.ewm.stats.proto.UserActionProto;
+import ru.practicum.messages.Message;
 
 @Slf4j
 @GrpcService
@@ -20,7 +21,7 @@ public class CollectorGrpcService extends UserActionControllerGrpc.UserActionCon
 
     @Override
     public void collectUserAction(UserActionProto request, StreamObserver<Empty> responseObserver) {
-        log.info("Received user action: userId={}, eventId={}, actionType={}",
+        log.info(Message.LOG_COLLECT_USER_CATION,
                 request.getUserId(), request.getEventId(), request.getActionType());
 
         try {
@@ -30,9 +31,9 @@ public class CollectorGrpcService extends UserActionControllerGrpc.UserActionCon
             responseObserver.onNext(Empty.newBuilder().build());
             responseObserver.onCompleted();
 
-            log.info("User action processed successfully");
+            log.info(Message.LOG_USER_ACTION_OK);
         } catch (Exception e) {
-            log.error("Error processing user action", e);
+            log.error(Message.ERROR_USER_ACTION, e);
             responseObserver.onError(e);
         }
     }
@@ -56,7 +57,7 @@ public class CollectorGrpcService extends UserActionControllerGrpc.UserActionCon
             case ACTION_VIEW -> ActionTypeAvro.VIEW;
             case ACTION_REGISTER -> ActionTypeAvro.REGISTER;
             case ACTION_LIKE -> ActionTypeAvro.LIKE;
-            default -> throw new IllegalArgumentException("Unknown action type: " + protoType);
+            default -> throw new IllegalArgumentException(String.format(Message.UNKNOW_ACTION, protoType));
         };
     }
 }

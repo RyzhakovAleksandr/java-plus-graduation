@@ -7,6 +7,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
+import ru.practicum.messages.Message;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,7 +23,7 @@ public class SimilarityProducer {
 
     public void send(EventSimilarityAvro message) {
         String key = message.getEventA() + "_" + message.getEventB();
-        log.info("Sending similarity to Kafka: topic={}, key={}, eventA={}, eventB={}, score={}",
+        log.info(Message.SEND_SIMILARITY_TO_KAFKA,
                 topic, key, message.getEventA(), message.getEventB(), message.getScore());
 
         CompletableFuture<SendResult<String, EventSimilarityAvro>> future =
@@ -30,11 +31,11 @@ public class SimilarityProducer {
 
         future.whenComplete((result, ex) -> {
             if (ex == null) {
-                log.info("Similarity sent successfully: offset={}, partition={}",
+                log.info(Message.SIMILARITY_SUCCESS,
                         result.getRecordMetadata().offset(),
                         result.getRecordMetadata().partition());
             } else {
-                log.error("Failed to send similarity for key={}: {}", key, ex.getMessage(), ex);
+                log.error(Message.FAILED_SEND_SIMILARITY, key, ex.getMessage(), ex);
             }
         });
     }
