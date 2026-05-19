@@ -175,26 +175,27 @@ public class RequestServiceImpl implements RequestService {
     public List<ParticipationRequestDto> getEventParticipants(Long userId, Long eventId) {
         log.info(Message.LOG_GET_REQUEST_INITIATOR, eventId, userId);
 
-        log.info("=== getEventParticipants ===");
-        log.info("userId={}, eventId={}", userId, eventId);
-
-        EventFullDto event = eventClient.getEvent(eventId);
+        EventFullDto event = eventClient.getEventInternal(eventId);
 
         if (event == null) {
             throw new NotFoundException(String.format(Message.EVENT_NOT_FOUND, eventId));
         }
-        log.info("Event initiator id: {}", event.getInitiator().getId());
-        log.info("Current userId: {}", userId);
 
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ForbiddenException(Message.ONLY_INITIATOR_CAN_VIEW);
         }
 
         List<Request> requests = requestRepository.findAllByEventId(eventId);
-        log.info("Найдено заявок в БД: {}", requests.size());
 
         return requests.stream()
                 .map(requestMapper::toParticipationRequestDto)
                 .toList();
+    }
+
+    @Override
+    public Boolean hasUserVisitedEvent(Long userId, Long eventId) {
+        log.info(Message.USER_VISITED_EVENT, userId, eventId);
+
+        return requestRepository.existsByRequesterAndEventAndStatus(userId, eventId, StatusRequest.CONFIRMED.toString());
     }
 }

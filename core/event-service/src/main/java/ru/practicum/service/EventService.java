@@ -23,7 +23,7 @@ public interface EventService {
                                                                        Long eventId,
                                                                        EventRequestStatusRequest eventRequestStatusRequest);
 
-    ResponseEntity<EventFullDto> getEvent(Long id);
+    ResponseEntity<EventFullDto> getEvent(Long id, Long userId);
 
     ResponseEntity<List<ParticipationRequestDto>> getEventParticipants(Long userId, Long eventId);
 
@@ -42,5 +42,9 @@ public interface EventService {
     List<EventShortDto> getEventsByIds(List<Long> ids);
 
     EventFullDto getEventInternal(Long id);
+
+    void likeEvent(Long userId, Long eventId);
+
+    List<EventShortDto> getRecommendations(Long userId, int size);
 
 }

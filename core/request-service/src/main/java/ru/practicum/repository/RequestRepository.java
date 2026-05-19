@@ -7,9 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public interface RequestRepository extends JpaRepository<Request, Long> {
     @Query(nativeQuery = true, value = """
@@ -55,4 +53,6 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
         WHERE r.event = :eventId
         """)
     List<Request> findAllByEventId(@Param("eventId") Long eventId);
+
+    boolean existsByRequesterAndEventAndStatus(Long requester, Long event, String status);
 }

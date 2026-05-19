@@ -3,6 +3,10 @@ package ru.practicum.constant;
 public class Message {
     //log.info
     public static final String LOG_ADD_EVENT = "POST /users/{}/events";
+    public static final String LOG_GET_EVENTS_IDS = "GET /events/by-ids?ids={}";
+    public static final String LOG_LIKE_EVENT = "Лайк события: userId={}, eventId={}";
+    public static final String LOG_GET_RECOMMENDATION = "Получение рекомендаций для пользователя: userId={}, размер={}";
+    public static final String LOG_GET_EVENTS_INTERNAL_ADMIN = "GET /admin/events/{} (internal)";
     public static final String LOG_CHANGE_REQUEST_STATUS = "PATCH /users/{}/events/{}/requests";
     public static final String LOG_GET_EVENT = "GET /events/{}";
     public static final String LOG_GET_EVENT_PARTICIPANTS = "GET /users/{}/events/{}/requests";
@@ -25,6 +29,9 @@ public class Message {
     public static final String MESSAGE_UPDATE_EVENT = "Поступил запрос на обновление события";
     public static final String MESSAGE_COUNT_CONFIRMED = "Event {} confirmedCount = {}";
     public static final String GET_EVENT = "Получение события {} (internal, без проверки публикации)";
+    public static final String SEND_USER_ACTION = "Отправлено действие пользователя: userId={}, eventId={}, actionType={}";
+    public static final String GET_COUNT_REQUESTS = "Получение количества подтверждённых заявок для события {}";
+    public static final String COUNT_REQUESTS = "Количество подтверждённых заявок = {}";
     //log.warm
     public static final String CAN_NOT_SEND_STATUS = "Не удалось отправить статистику: {}";
     public static final String CAN_NOT_GET_CONFIRMED_REQUEST = "Failed to get confirmed requests for event {}: {}";
@@ -42,4 +49,5 @@ public class Message {
     public static final String EXCEPTION_FIELD_DESCRIPTION_NOT_HAS_SPACE = "Поле description не может состоять только из пробелов";
     public static final String EXCEPTION_FIELD_TITLE_NOT_HAS_SPACE = "Поле title не может состоять только из пробелов";
     public static final String EXCEPTION_WRONG_DATE_RANGE = "Дата начала диапазона не может быть позже даты окончания";
+    public static final String USER_NOT_VISITED_EVENT = "Пользователь не посещал это событие";
 }

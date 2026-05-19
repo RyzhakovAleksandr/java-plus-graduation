@@ -1,10 +1,10 @@
 package ru.practicum.service;
 
-import dto.EndpointHitDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import ru.practicum.client.CategoryClient;
+import ru.practicum.client.RecommendationGrpcClient;
 import ru.practicum.client.RequestClient;
 import ru.practicum.client.UserClient;
 import ru.practicum.constant.Message;
@@ -12,6 +12,7 @@ import ru.practicum.constant.Values;
 import ru.practicum.dto.GetEventsForAdminRequest;
 import ru.practicum.dto.GetEventsRequest;
 import ru.practicum.dto.UserShortDto;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
 import ru.practicum.exception.ForbiddenException;
 import ru.practicum.exception.MismatchDateException;
 import ru.practicum.exception.NotFoundException;
@@ -24,7 +25,6 @@ import ru.practicum.model.LocationEntity;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.LocationRepository;
 import ru.practicum.specification.EventSpecification;
-import ru.practicum.client.StatsClient;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -54,11 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static ru.practicum.constant.Values.APPLICATION;
-import static ru.practicum.constant.Values.EVENTS_GET_URI;
-import static ru.practicum.constant.Values.EVENT_GET_URI;
-import static ru.practicum.constant.Values.EWM_IP;
-
 @Slf4j
 @Service
 @Transactional
@@ -68,7 +63,7 @@ public class EventServiceImpl implements EventService {
     private final UserClient userClient;
     private final CategoryClient categoryClient;
     private final RequestClient requestClient;
-    private final StatsClient statsClient;
+    private final RecommendationGrpcClient recommendationGrpcClient;
 
     private final EventRepository eventRepository;
     private final LocationRepository locationRepository;
@@ -102,7 +97,7 @@ public class EventServiceImpl implements EventService {
         event.setLocation(location.getId());
         event.setState("PENDING");
         event.setConfirmedRequests(0);
-        event.setViews(0L);
+        event.setRating(0.0);
         event = eventRepository.save(event);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(getEventFullDto(event, location));
@@ -118,16 +113,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public ResponseEntity<EventFullDto> getEvent(Long id) {
+    public ResponseEntity<EventFullDto> getEvent(Long id, Long userId) {
         log.info(Message.MESSAGE_GET_EVENT_BY_ID, id);
 
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Message.EXCEPTION_NOT_FOUND));
-
-        if (event.getViews() == null || event.getViews() == 0) {
-            event.setViews(1L);
-            eventRepository.save(event);
-        }
 
         if (!"PUBLISHED".equals(event.getState())) {
             throw new NotFoundException(Message.EXCEPTION_NOT_PUBLISHED);
@@ -136,17 +126,12 @@ public class EventServiceImpl implements EventService {
         LocationEntity location = locationRepository.findById(event.getLocation())
                 .orElseThrow(() -> new NotFoundException(Message.EXCEPTION_NOT_FOUND));
 
-        try {
-            EndpointHitDto hit = EndpointHitDto.builder()
-                    .uri(String.format(EVENT_GET_URI, id))
-                    .app(APPLICATION)
-                    .ip(EWM_IP)
-                    .timestamp(LocalDateTime.now())
-                    .build();
-            statsClient.saveHit(hit);
-        } catch (Exception e) {
-            log.warn(Message.CAN_NOT_SEND_STATUS, e.getMessage());
-        }
+        recommendationGrpcClient.sendUserAction(userId, id, ActionTypeProto.ACTION_VIEW);
+
+        Map<Long, Double> ratings = recommendationGrpcClient.getInteractionsCount(List.of(id));
+        Double rating = ratings.getOrDefault(id, 0.0);
+        event.setRating(rating);
+        eventRepository.save(event);
 
         return ResponseEntity.ok(getEventFullDto(event, location));
     }
@@ -156,7 +141,7 @@ public class EventServiceImpl implements EventService {
         log.info(Message.MESSAGE_GET_PARTICIPANTS, userId, eventId);
 
         List<ParticipationRequestDto> result = requestClient.getEventParticipants(userId, eventId);
-        return ResponseEntity.ok(List.of());
+        return ResponseEntity.ok(result);
     }
 
     @Override
@@ -181,18 +166,6 @@ public class EventServiceImpl implements EventService {
                 .stream()
                 .map(this::getEventShortDto)
                 .toList();
-
-        try {
-            EndpointHitDto hit = EndpointHitDto.builder()
-                    .uri(EVENTS_GET_URI)
-                    .app(APPLICATION)
-                    .ip(EWM_IP)
-                    .timestamp(LocalDateTime.now())
-                    .build();
-            statsClient.saveHit(hit);
-        } catch (Exception e) {
-            log.warn(Message.CAN_NOT_SEND_STATUS, e.getMessage());
-        }
 
         return ResponseEntity.ok(list);
     }
@@ -359,12 +332,52 @@ public class EventServiceImpl implements EventService {
         return getEventFullDto(event, location);
     }
 
+    @Override
+    public void likeEvent(Long userId, Long eventId) {
+        log.info(Message.LOG_LIKE_EVENT, userId, eventId);
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(Message.EXCEPTION_NOT_FOUND));
+
+        if (!"PUBLISHED".equals(event.getState())) {
+            throw new NotFoundException(Message.EXCEPTION_NOT_PUBLISHED);
+        }
+
+        Boolean hasVisited = requestClient.hasUserVisitedEvent(userId, eventId);
+        if (hasVisited == null || !hasVisited) {
+            throw new ValidationException(Message.USER_NOT_VISITED_EVENT);
+        }
+
+        recommendationGrpcClient.sendUserAction(userId, eventId, ActionTypeProto.ACTION_LIKE);
+    }
+
+    @Override
+    public List<EventShortDto> getRecommendations(Long userId, int size) {
+        log.info(Message.LOG_GET_RECOMMENDATION, userId, size);
+
+        List<Long> recommendedEventIds = recommendationGrpcClient.getRecommendations(userId, size);
+
+        if (recommendedEventIds.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Long, Double> ratings = recommendationGrpcClient.getInteractionsCount(recommendedEventIds);
+
+        return eventRepository.findAllById(recommendedEventIds).stream()
+                .map(event -> {
+                    EventShortDto dto = getEventShortDto(event);
+                    dto.setRating(ratings.getOrDefault(event.getId(), 0.0));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
     private EventFullDto getEventFullDto(Event event, LocationEntity location) {
         UserDto user = userClient.getUser(event.getInitiator());
         CategoryDto category = categoryClient.getCategory(event.getCategory());
-        log.info("Getting confirmed requests count for event {}", event.getId());
+        log.info(Message.GET_COUNT_REQUESTS, event.getId());
         Long confirmedCount = requestClient.getConfirmedRequestsCount(event.getId());
-        log.info("Confirmed requests count = {}", confirmedCount);
+        log.info(Message.COUNT_REQUESTS, confirmedCount);
 
         EventFullDto eventFullDto = eventMapper.eventToEventFullDto(event);
         eventFullDto.setPublishedOn(OffsetDateTime.now().format(DateTimeFormatter.ofPattern(Values.DATE_TIME_PATTERN)));

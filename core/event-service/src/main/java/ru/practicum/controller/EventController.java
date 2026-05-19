@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,6 +50,8 @@ public class EventController {
     private static final String EVENTS_BY_IDS = "/events/by-ids";
     private static final String EVENTS_BY_CATEGORY_EXISTS = "/events/by-category/{categoryId}/exists";
     private static final String ADMIN_EVENTS_INTERNAL = "/admin/events/{id}";
+    private static final String USERS_EVENTS_LIKE = "/users/{userId}/events/{eventId}/like";
+    private static final String USERS_RECOMMENDATIONS = "/users/{userId}/recommendations";
 
     @PostMapping(USERS_EVENTS)
     public ResponseEntity<EventFullDto> addEvent(
@@ -68,9 +71,11 @@ public class EventController {
     }
 
     @GetMapping(EVENTS_ID)
-    public ResponseEntity<EventFullDto> getEvent(@PathVariable Long id) {
+    public ResponseEntity<EventFullDto> getEvent(
+            @PathVariable Long id,
+            @RequestHeader("X-EWM-USER-ID") Long userId) {
         log.info(Message.LOG_GET_EVENT, id);
-        return eventService.getEvent(id);
+        return eventService.getEvent(id, userId);
     }
 
     @GetMapping(USERS_EVENTS_REQUESTS)
@@ -163,7 +168,7 @@ public class EventController {
 
     @GetMapping(EVENTS_BY_IDS)
     public ResponseEntity<List<EventShortDto>> getEventsByIds(@RequestParam List<Long> ids) {
-        log.info("GET /events/by-ids?ids={}", ids);
+        log.info(Message.LOG_GET_EVENTS_IDS, ids);
         List<EventShortDto> events = eventService.getEventsByIds(ids);
         return ResponseEntity.ok(events);
     }
@@ -176,7 +181,25 @@ public class EventController {
 
     @GetMapping(ADMIN_EVENTS_INTERNAL)
     public ResponseEntity<EventFullDto> getEventInternal(@PathVariable Long id) {
-        log.info("GET /admin/events/{} (internal)", id);
+        log.info(Message.LOG_GET_EVENTS_INTERNAL_ADMIN, id);
         return ResponseEntity.ok(eventService.getEventInternal(id));
+    }
+
+    @PostMapping(USERS_EVENTS_LIKE)
+    public ResponseEntity<Void> likeEvent(
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
+        log.info(Message.LOG_LIKE_EVENT, userId, eventId);
+        eventService.likeEvent(userId, eventId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(USERS_RECOMMENDATIONS)
+    public ResponseEntity<List<EventShortDto>> getRecommendations(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info(Message.LOG_GET_RECOMMENDATION, userId, size);
+        List<EventShortDto> recommendations = eventService.getRecommendations(userId, size);
+        return ResponseEntity.ok(recommendations);
     }
 }
